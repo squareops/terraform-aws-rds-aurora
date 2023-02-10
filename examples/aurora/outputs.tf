@@ -18,11 +18,6 @@ output "aurora_cluster_master_username" {
   value       = module.aurora.rds_cluster_master_username
 }
 
-output "aurora_cluster_instance_ids" {
-  description = "A list of all cluster instance ids"
-  value       = module.aurora.rds_cluster_instance_ids
-}
-
 output "aurora_security_group_id" {
   description = "The security group ID of the cluster"
   value       = module.aurora.security_group_id

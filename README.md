@@ -1,5 +1,57 @@
-# USAGE
+## AURORA
+![squareops_avatar]
 
+[squareops_avatar]: https://squareops.com/wp-content/uploads/2022/12/squareops-logo.png
+
+### [SquareOps Technologies](https://squareops.com/) Your DevOps Partner for Accelerating cloud journey.
+<br>
+We publish several terraform modules.
+<br>
+Terraform Module to create AWS Aurora(mysql/postgresql) on AWS Cloud.
+
+## Usage Example
+```hcl
+module "aurora" {
+  source = "gitlab.com/sq-ia/aws/rds-mysql.git"
+  environment             = "production"
+  rds_instance_name       = "skaf"
+  create_security_group   = true
+  allowed_cidr_blocks     = []
+  allowed_security_groups = ["sg-xyzf8bdc01fd9skaf"]
+  engine                  = "aurora-postgresql/aurora-mysql"
+  engine_version          = "13.7"
+  instance_type           = "db.r5.large"
+  storage_encrypted       = true
+  kms_key_arn             = "arn:aws:kms:us-east-2:222222222222:key/kms_key_arn"
+  publicly_accessible     = false
+  master_username         = "produser"
+  database_name           = "proddb"
+  port                    = 3306
+  vpc_id                  = "vpc-xyz5ed733e273skaf"
+  subnets                 = ["subnet-xyz546125e075skaf","subnet-xyz8f0564e655skaf"]
+  apply_immediately       = true
+  create_random_password  = true
+  skip_final_snapshot              = true
+  final_snapshot_identifier_prefix = "prod-snapshot"
+  snapshot_identifier              = null
+  preferred_maintenance_window     = "Mon:00:00-Mon:03:00"
+  preferred_backup_window          = "03:00-06:00"
+  backup_retention_period          = 7
+  enable_ssl_connection            = false
+  family = "aurora-postgresql13/aurora-mysql5.7"
+  autoscaling_enabled              = true
+  autoscaling_max                  = 4
+  autoscaling_min                  = 1
+  predefined_metric_type           = "RDSReaderAverageDatabaseConnections"
+  autoscaling_target_connections   = 40
+  autoscaling_scale_in_cooldown    = 60
+  autoscaling_scale_out_cooldown   = 30
+  deletion_protection              = false
+
+}
+```
+
+## Important Notes
 - Used to create RDS resource with AWS aurora engines.
 - Contains the following features:
   1. Engine Mode for provisioned or serverless.
@@ -17,138 +69,15 @@
   13. Enable/Disable Apply Immediately for changes.
   14. SSL/TLS encryuption for connections.
 
-- To pass custom values for rds-aurora create file terraform.tfvars and pass your values there.
 
-- To apply  :
+## Security & Compliance [<img src="	https://prowler.pro/wp-content/themes/prowler-pro/assets/img/logo.svg" width="250" align="right" />](https://prowler.pro/)
 
-        cd aurora
-        terraform init
-        terraform plan  
-        terraform apply
+Security scanning is graciously provided by Prowler. Proowler is the leading fully hosted, cloud-native solution providing continuous cluster security and compliance.
 
-- To destroy the resources:
+| Benchmark | Description |
+|--------|---------------|
+| Ensure that encryption is enabled for RDS instances | Enabled for RDS created using this module. |
 
-      terraform destroy
-
-
-# CIS COMPLIANCE
-
-- Follows the VPC recommendations of CIS Amazon Web Services Foundations Benchmark v1.4.0  
-
- 2.3.1 | Ensure that encryption is enabled for RDS instances                                                                |   OK  |             Enabled for RDS created using this module.  
-
-## IAM Permission
-<!-- BEGINNING OF PRE-COMMIT-PIKE DOCS HOOK -->
-The Policy required is:
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "VisualEditor0",
-            "Effect": "Allow",
-            "Action": [
-                "application-autoscaling:DeleteScalingPolicy",
-                "application-autoscaling:DeregisterScalableTarget",
-                "application-autoscaling:DescribeScalableTargets",
-                "application-autoscaling:DescribeScalingPolicies",
-                "application-autoscaling:PutScalingPolicy",
-                "application-autoscaling:RegisterScalableTarget"
-            ],
-            "Resource": [
-                "*"
-            ]
-        },
-        {
-            "Sid": "VisualEditor1",
-            "Effect": "Allow",
-            "Action": [
-                "ec2:AuthorizeSecurityGroupEgress",
-                "ec2:AuthorizeSecurityGroupIngress",
-                "ec2:CreateSecurityGroup",
-                "ec2:CreateTags",
-                "ec2:DeleteSecurityGroup",
-                "ec2:DeleteTags",
-                "ec2:DescribeAccountAttributes",
-                "ec2:DescribeAvailabilityZones",
-                "ec2:DescribeNetworkInterfaces",
-                "ec2:DescribeSecurityGroups",
-                "ec2:RevokeSecurityGroupEgress",
-                "ec2:RevokeSecurityGroupIngress"
-            ],
-            "Resource": [
-                "*"
-            ]
-        },
-        {
-            "Sid": "VisualEditor2",
-            "Effect": "Allow",
-            "Action": [
-                "iam:AttachRolePolicy",
-                "iam:CreateRole",
-                "iam:CreateServiceLinkedRole",
-                "iam:DeleteRole",
-                "iam:DeleteRolePermissionsBoundary",
-                "iam:DeleteRolePolicy",
-                "iam:DetachRolePolicy",
-                "iam:GetRole",
-                "iam:ListAttachedRolePolicies",
-                "iam:ListInstanceProfilesForRole",
-                "iam:ListRolePolicies",
-                "iam:PassRole",
-                "iam:PutRolePermissionsBoundary",
-                "iam:TagRole",
-                "iam:UpdateRoleDescription"
-            ],
-            "Resource": [
-                "*"
-            ]
-        },
-        {
-            "Sid": "VisualEditor3",
-            "Effect": "Allow",
-            "Action": [
-                "rds:AddRoleToDBCluster",
-                "rds:AddTagsToResource",
-                "rds:CreateDBCluster",
-                "rds:CreateDBClusterEndpoint",
-                "rds:CreateDBClusterParameterGroup",
-                "rds:CreateDBInstance",
-                "rds:CreateDBParameterGroup",
-                "rds:CreateDBSubnetGroup",
-                "rds:DeleteDBCluster",
-                "rds:DeleteDBClusterEndpoint",
-                "rds:DeleteDBClusterParameterGroup",
-                "rds:DeleteDBParameterGroup",
-                "rds:DeleteDBSubnetGroup",
-                "rds:DescribeDBClusterParameterGroups",
-                "rds:DescribeDBClusterParameters",
-                "rds:DescribeDBClusters",
-                "rds:DescribeDBInstances",
-                "rds:DescribeDBParameterGroups",
-                "rds:DescribeDBParameters",
-                "rds:DescribeDBSubnetGroups",
-                "rds:DescribeGlobalClusters",
-                "rds:ListTagsForResource",
-                "rds:ModifyDBCluster",
-                "rds:ModifyDBClusterEndpoint",
-                "rds:ModifyDBClusterParameterGroup",
-                "rds:ModifyDBInstance",
-                "rds:ModifyDBParameterGroup",
-                "rds:RemoveRoleFromDBCluster",
-                "rds:RemoveTagsFromResource"
-            ],
-            "Resource": [
-                "*"
-            ]
-        }
-    ]
-}
-
-
-```
-<!-- END OF PRE-COMMIT-PIKE DOCS HOOK -->
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
@@ -208,7 +137,7 @@ The Policy required is:
 | <a name="input_iam_database_authentication_enabled"></a> [iam\_database\_authentication\_enabled](#input\_iam\_database\_authentication\_enabled) | Specifies whether or mappings of AWS Identity and Access Management (IAM) accounts to database accounts is enabled | `bool` | `null` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type | `string` | `"db.m5.large"` | no |
 | <a name="input_instances_config"></a> [instances\_config](#input\_instances\_config) | Map of cluster instances and any specific/overriding attributes to be created | `map(any)` | <pre>{<br>  "one": {}<br>}</pre> | no |
-| <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | The ARN for the KMS encryption key. If creating an encrypted replica, set this to the destination KMS ARN.  If storage\_encrypted is set to true and kms\_key\_id is not specified the default KMS key created in your account will be used | `string` | `null` | no |
+| <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | The ARN for the KMS encryption key. If creating an encrypted replica, set this to the destination KMS ARN.  If storage\_encrypted is set to true and kms\_key\_id is not specified the default KMS key created in your account will be used | `string` | `null` | no |
 | <a name="input_master_username"></a> [master\_username](#input\_master\_username) | Master DB username | `string` | `"root"` | no |
 | <a name="input_monitoring_interval"></a> [monitoring\_interval](#input\_monitoring\_interval) | The interval, in seconds, between points when Enhanced Monitoring metrics are collected for instances. Set to 0 to disble. Default is 0 | `number` | `0` | no |
 | <a name="input_performance_insights_enabled"></a> [performance\_insights\_enabled](#input\_performance\_insights\_enabled) | Specifies whether Performance Insights is enabled or not | `bool` | `null` | no |
@@ -239,3 +168,72 @@ The Policy required is:
 | <a name="output_rds_cluster_reader_endpoint"></a> [rds\_cluster\_reader\_endpoint](#output\_rds\_cluster\_reader\_endpoint) | The cluster reader endpoint |
 | <a name="output_security_group_id"></a> [security\_group\_id](#output\_security\_group\_id) | The security group ID of the cluster |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+
+## Contribute & Issue Report
+
+To contribute to a project, you can typically:
+
+  1. Find the repository on a platform like GitHub
+  2. Fork the repository to your own account
+  3. Make changes to the code
+  4. Submit a pull request to the original repository
+
+To report an issue with a project:
+
+  1. Check the repository's [issue tracker](https://github.com/squareops/terraform-aws-vpc/issues) on GitHub
+  2. Search to see if the issue has already been reported
+  3. If you can't find an answer to your question in the documentation or issue tracker, you can ask a question by creating a new issue. Be sure to provide enough context and details so others can understand your problem.
+  4. Contributing to the project can be a great way to get involved and get help. The maintainers and other contributors may be more likely to help you if you're already making contributions to the project.
+
+## Our Other Projects
+
+We have a number of other projects that you might be interested in:
+
+  1. [terraform-aws-vpc](https://github.com/squareops/terraform-aws-vpc): Terraform module to create Networking resources for workload deployment on AWS Cloud.
+
+  2. [terraform-aws-keypair](https://github.com/squareops/terraform-aws-keypair): Terraform module which creates EC2 key pair on AWS. The private key will be stored on SSM.
+
+     Follow Us:
+
+     To stay updated on our projects and future release, follow us on
+     [GitHub](https://github.com/squareops/),
+     [LinkedIn](https://www.linkedin.com/company/squareops-technologies-pvt-ltd/)
+
+     By joining our both the [email](https://github.com/squareops) and [Slack community](https://github.com/squareops), you can benefit from the different ways in which we provide support. You can receive timely notifications and updates through email and engage in real-time conversations and discussions with other members through Slack. This combination of resources can help you stay informed, get help when you need it, and contribute to the project in a meaningful way.  
+
+## Security, Validation and pull-requests
+
+we have offered here excessive quality code and modules. Hence we are using several [pre-commit hooks](.pre-commit-config.yaml) and [GitHub Actions](https://gitlab.com/sq-ia/aws/eks/-/tree/v1.0.0#security-validation-and-pull-requests) as a workflow. So here we will create pull-requests to any branch and validate the request automatically using pre-commit tool.
+
+## License
+
+Apache License, Version 2.0, January 2004 (http://www.apache.org/licenses/).
+
+## Support Us
+
+To support a GitHub project by liking it, you can follow these steps:
+
+  1. Visit the repository: Navigate to the GitHub repository that you want to support.
+
+  2. Click the "Star" [button](https://github.com/squareops/terraform-aws-vpc): On the repository page, you'll see a "Star" button in the upper right corner. Clicking on it will star the repository, indicating your support for the project.
+
+  3. Optionally, you can also leave a comment on the repository or open an issue to give feedback or suggest changes.
+
+Staring a repository on GitHub is a simple way to show your support and appreciation for the project. It also helps to increase the visibility of the project and make it more discoverable to others.
+
+## Who we are
+
+We believe that the key to success in the digital age is the ability to deliver value quickly and reliably. That’s why we offer a comprehensive range of DevOps & Cloud services designed to help your organization optimize its systems & Processes for speed and agility.
+
+  1. We are an AWS Advanced consulting partner which reflects our deep expertise in AWS Cloud and helping 100+ clients over the last 4 years.
+  2. Expertise in Kubernetes and overall container solution helps companies expedite their journey by 10X.
+  3. Infrastructure Automation is a key component to the success of our Clients and our Expertise helps deliver the same in the shortest time.
+  4. DevSecOps as a service to implement security within the overall DevOps process and helping companies deploy securely and at speed.
+  5. Platform engineering which supports scalable,Cost efficient infrastructure that supports rapid development, testing, and deployment.
+  6. 24*7 SRE service to help you Monitor the state of your infrastructure and eradicate any issue within the SLA.
+
+We provide [support](https://squareops.com/contact-us/) on all of our projects, no matter how small or large they may be.
+
+You can find more information about our company on this [squareops.com](https://squareops.com/), follow us on [linkdin](https://www.linkedin.com/company/squareops-technologies-pvt-ltd/), or fill out a [job application](https://squareops.com/careers/). If you have any questions or would like assistance with your cloud strategy and implementation, please don't hesitate to [contact us](https://squareops.com/contact-us/).
+

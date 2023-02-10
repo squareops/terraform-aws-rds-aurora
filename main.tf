@@ -17,7 +17,7 @@ module "aurora" {
   scaling_configuration = var.engine_mode == "serverless" ? var.scaling_configuration : {}
   instance_class        = var.engine_mode == "serverless" ? null : var.instance_type
   storage_encrypted     = var.storage_encrypted
-  kms_key_id            = var.kms_key_id
+  kms_key_id            = var.kms_key_arn
   publicly_accessible   = var.publicly_accessible
   enable_http_endpoint  = var.enable_http_endpoint
 
