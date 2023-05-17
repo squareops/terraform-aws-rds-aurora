@@ -1,24 +1,24 @@
 output "rds_cluster_endpoint" {
-  description = "The cluster endpoint"
+  description = "The endpoint URL of the Aurora cluster"
   value       = module.aurora.cluster_endpoint
 }
 
 output "rds_cluster_reader_endpoint" {
-  description = "The cluster reader endpoint"
+  description = "The reader endpoint URL of the Aurora cluster"
   value       = module.aurora.cluster_reader_endpoint
 }
 
 output "rds_cluster_master_password" {
-  description = "The master password"
+  description = "The master password for the Aurora cluster"
   value       = nonsensitive(module.aurora.cluster_master_password)
 }
 
 output "rds_cluster_master_username" {
-  description = "The master username"
+  description = "The master username for the Aurora cluster"
   value       = nonsensitive(module.aurora.cluster_master_username)
 }
 
 output "security_group_id" {
-  description = "The security group ID of the cluster"
+  description = "The security group ID associated with the Aurora cluster"
   value       = module.aurora.security_group_id
 }
