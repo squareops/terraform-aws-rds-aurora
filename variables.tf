@@ -11,51 +11,51 @@ variable "allow_major_version_upgrade" {
 }
 
 variable "allowed_security_groups" {
-  description = "A list of Security Group ID's to allow access to"
+  description = "A list of Security Group IDs to allow access to the database"
   type        = list(string)
   default     = []
 }
 
 variable "apply_immediately" {
-  description = "Determines whether or not any DB modifications are applied immediately, or during the maintenance window"
+  description = "Specifies whether any cluster modifications are applied immediately or during the next maintenance window"
   type        = bool
   default     = false
 }
 
 variable "backup_retention_period" {
-  description = "How long to keep backups for (in days)"
+  description = "The number of days to retain backups for"
   type        = number
   default     = null
 }
 
 variable "create_random_password" {
-  description = "Whether to create random password for RDS primary cluster"
+  description = "Whether to create a random password for the primary database cluster"
   type        = bool
   default     = true
 }
 
 variable "create_security_group" {
-  description = "create security group or not"
+  description = "Whether to create a security group or not"
   type        = bool
   default     = true
 }
 
 variable "database_name" {
-  description = "Name for an automatically created database on cluster creation"
+  description = "The name for an automatically created database on cluster creation"
   type        = string
   default     = ""
 }
 
 variable "deletion_protection" {
-  description = "provide accidental deletion protection"
-  default     = true
+  description = "Whether accidental deletion protection is enabled"
   type        = bool
+  default     = true
 }
 
 variable "engine" {
-  description = "engine type"
-  default     = "aurora"
+  description = "The name of the database engine to be used for this DB cluster"
   type        = string
+  default     = "aurora"
 }
 
 variable "enable_http_endpoint" {
@@ -66,8 +66,8 @@ variable "enable_http_endpoint" {
 
 variable "enable_ssl_connection" {
   description = "Whether or not to enable the ssl connection"
-  default     = false
   type        = bool
+  default     = false
 }
 
 variable "engine_mode" {
@@ -77,15 +77,15 @@ variable "engine_mode" {
 }
 
 variable "engine_version" {
-  description = "engine version"
-  default     = ""
+  description = "The database engine version. Updating this argument results in an outage."
   type        = string
+  default     = ""
 }
 
 variable "environment" {
   description = "Select enviroment type: dev, demo, prod"
-  default     = "demo"
   type        = string
+  default     = "demo"
 }
 
 variable "family" {
@@ -102,8 +102,8 @@ variable "final_snapshot_identifier_prefix" {
 
 variable "instance_type" {
   description = "Instance type"
-  default     = "db.m5.large"
   type        = string
+  default     = "db.m5.large"
 }
 
 variable "kms_key_arn" {
@@ -113,39 +113,39 @@ variable "kms_key_arn" {
 }
 
 variable "master_username" {
-  description = "Master DB username"
+  description = "The username for the primary cluster"
   type        = string
   default     = "root"
 }
 
 variable "port" {
-  description = "port for database"
+  description = "The port for the database"
   type        = number
   default     = 3306
 }
 
 variable "preferred_backup_window" {
-  description = "When to perform DB backups"
+  description = "The maintenance window for performing database backup"
   type        = string
   default     = ""
 }
 
 variable "preferred_maintenance_window" {
-  description = "When to perform DB maintenance"
+  description = "The maintenance window for performing database maintenance"
   type        = string
   default     = ""
 }
 
 variable "publicly_accessible" {
-  description = "Publicly accessible to the internet"
-  default     = false
+  description = "Specifies whether the database is publicly accessible over the internet"
   type        = bool
+  default     = false
 }
 
 variable "rds_instance_name" {
-  description = "RDS instance name"
-  default     = "abc"
+  description = "The name of the RDS instance"
   type        = string
+  default     = ""
 }
 
 variable "scaling_configuration" {
@@ -168,8 +168,8 @@ variable "skip_final_snapshot" {
 
 variable "storage_encrypted" {
   description = "Allow Database encryption or not"
-  default     = true
   type        = bool
+  default     = true
 }
 
 variable "subnets" {
@@ -227,63 +227,63 @@ variable "snapshot_identifier" {
 }
 
 variable "instances_config" {
-  type        = map(any)
   description = "Map of cluster instances and any specific/overriding attributes to be created"
+  type        = map(any)
   default = {
     one = {}
   }
 }
 
 variable "create_monitoring_role" {
+  description = "Set it to true to create IAM role for Enhanced monitoring."
   type        = bool
   default     = false
-  description = "Set it to true to create IAM role for Enhanced monitoring."
 }
 
 variable "serverlessv2_scaling_configuration" {
+  description = "Map of nested attributes with serverless v2 scaling properties. Only valid when engine_mode is set to provisioned"
   type        = map(string)
   default     = {}
-  description = "Map of nested attributes with serverless v2 scaling properties. Only valid when engine_mode is set to provisioned"
 }
 
 variable "performance_insights_retention_period" {
+  description = "Retention period for performance insights data, Either 7 (7 days) or 731 (2 years)."
   type        = number
   default     = null
-  description = "Retention period for performance insights data, Either 7 (7 days) or 731 (2 years)."
 }
 
 variable "performance_insights_kms_key_id" {
+  description = "ARN of KMS key to encrypt performance insights data."
   type        = string
   default     = null
-  description = "ARN of KMS key to encrypt performance insights data."
 }
 
 variable "performance_insights_enabled" {
+  description = "Specifies whether Performance Insights is enabled or not"
   type        = bool
   default     = null
-  description = "Specifies whether Performance Insights is enabled or not"
 }
 
 variable "iam_database_authentication_enabled" {
+  description = "Specifies whether or mappings of AWS Identity and Access Management (IAM) accounts to database accounts is enabled"
   type        = bool
   default     = null
-  description = "Specifies whether or mappings of AWS Identity and Access Management (IAM) accounts to database accounts is enabled"
 }
 
 variable "autoscaling_target_connections" {
+  description = "No of connections on which aurora has to scale if predefined_metric_type is RDSReaderAverageDatabaseConnections"
   type        = number
   default     = 50
-  description = "No of connections on which aurora has to scale if predefined_metric_type is RDSReaderAverageDatabaseConnections"
 }
 
 variable "monitoring_interval" {
+  description = "The interval, in seconds, between points when Enhanced Monitoring metrics are collected for instances. Set to 0 to disble. Default is 0"
   type        = number
   default     = 0
-  description = "The interval, in seconds, between points when Enhanced Monitoring metrics are collected for instances. Set to 0 to disble. Default is 0"
 }
 
 variable "predefined_metric_type" {
-  type        = string
   description = "The metric type to scale on. Valid values are RDSReaderAverageCPUUtilization and RDSReaderAverageDatabaseConnections"
+  type        = string
   default     = "RDSReaderAverageDatabaseConnections"
 }
