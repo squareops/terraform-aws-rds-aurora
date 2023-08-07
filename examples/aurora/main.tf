@@ -43,6 +43,7 @@ module "aurora" {
   autoscaling_enabled              = true
   autoscaling_max                  = 4
   autoscaling_min                  = 1
+  long_query_time                  = 10
   deletion_protection              = false
   predefined_metric_type           = "RDSReaderAverageDatabaseConnections"
   autoscaling_target_connections   = 40

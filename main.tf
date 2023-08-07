@@ -79,6 +79,14 @@ resource "aws_db_parameter_group" "rds_parameter_group" {
     { "Name" = format("%s-%s-parameter-group", var.environment, var.rds_instance_name) },
     local.tags,
   )
+  parameter {
+    name  = (var.engine == "aurora-mysql" ? "slow_query_log" : "")
+    value = (var.engine == "aurora-mysql" ?  1 : "")
+  }
+    parameter {
+    name  = (var.engine == "aurora-mysql" ? "long_query_time" : "")
+    value = (var.engine == "aurora-mysql" ?  var.long_query_time : "")
+  }
 }
 resource "aws_rds_cluster_parameter_group" "rds_cluster_parameter_group" {
   name        = format("%s-%s-cluster-parameter-group", var.environment, var.rds_instance_name)
@@ -93,5 +101,12 @@ resource "aws_rds_cluster_parameter_group" "rds_cluster_parameter_group" {
     name  = (var.engine == "aurora-mysql" ? "require_secure_transport" : "rds.force_ssl")
     value = (var.engine == "aurora-mysql" ? (var.enable_ssl_connection ? "ON" : "OFF") : (var.engine == "aurora-postgres" && var.enable_ssl_connection ? 1 : 0))
   }
-
+  parameter {
+    name  = (var.engine == "aurora-mysql" ? "slow_query_log" : "")
+    value = (var.engine == "aurora-mysql" ?  1 : "")
+  }
+    parameter {
+    name  = (var.engine == "aurora-mysql" ? "long_query_time" : "")
+    value = (var.engine == "aurora-mysql" ?  var.long_query_time : "")
+  }
 }
