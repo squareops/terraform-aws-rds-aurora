@@ -50,6 +50,7 @@ Features
   autoscaling_enabled              = true
   autoscaling_max                  = 4
   autoscaling_min                  = 1
+  long_query_time                  = 10
   deletion_protection              = false
   predefined_metric_type           = "RDSReaderAverageDatabaseConnections"
   autoscaling_target_connections   = 40
@@ -125,6 +126,7 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type | `string` | `"db.m5.large"` | no |
 | <a name="input_instances_config"></a> [instances\_config](#input\_instances\_config) | Map of cluster instances and any specific/overriding attributes to be created | `map(any)` | <pre>{<br>  "one": {}<br>}</pre> | no |
 | <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | The ARN for the KMS encryption key. If creating an encrypted replica, set this to the destination KMS ARN.  If storage\_encrypted is set to true and kms\_key\_id is not specified the default KMS key created in your account will be used | `string` | `null` | no |
+| <a name="input_long_query_time"></a> [long\_query\_time](#input\_long\_query\_time) | To prevent fast-running queries from being logged in the slow query log, specify a value for the shortest query runtime to be logged, in seconds | `number` | `10` | no |
 | <a name="input_master_username"></a> [master\_username](#input\_master\_username) | The username for the primary cluster | `string` | `"root"` | no |
 | <a name="input_monitoring_interval"></a> [monitoring\_interval](#input\_monitoring\_interval) | The interval, in seconds, between points when Enhanced Monitoring metrics are collected for instances. Set to 0 to disble. Default is 0 | `number` | `0` | no |
 | <a name="input_performance_insights_enabled"></a> [performance\_insights\_enabled](#input\_performance\_insights\_enabled) | Specifies whether Performance Insights is enabled or not | `bool` | `null` | no |

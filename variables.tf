@@ -290,6 +290,6 @@ variable "predefined_metric_type" {
 
 variable "long_query_time" {
   description = "To prevent fast-running queries from being logged in the slow query log, specify a value for the shortest query runtime to be logged, in seconds"
-  type = number
-  default = 10
+  type        = number
+  default     = 10
 }
