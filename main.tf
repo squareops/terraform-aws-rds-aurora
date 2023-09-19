@@ -3,41 +3,71 @@ locals {
     Automation  = "true"
     Environment = var.environment
   }
+  region           = var.region
+  secondary_region = var.secondary_region
 }
 
+provider "aws" {
+  region = local.region
+}
+
+provider "aws" {
+  alias  = "secondary"
+  region = local.secondary_region
+}
+
+data "aws_caller_identity" "current" {}
+data "aws_availability_zones" "primary" {}
+data "aws_availability_zones" "secondary" {
+  provider = aws.secondary
+}
 
 module "aurora" {
   source  = "terraform-aws-modules/rds-aurora/aws"
-  version = "7.5.1"
+  version = "8.3.0"
   name    = format("%s-%s", var.environment, var.rds_instance_name)
 
-  engine                = var.engine
-  engine_mode           = var.engine_mode
-  engine_version        = var.engine_mode == "serverless" ? null : var.engine_version
-  scaling_configuration = var.engine_mode == "serverless" ? var.scaling_configuration : {}
-  instance_class        = var.engine_mode == "serverless" ? null : var.instance_type
-  storage_encrypted     = var.storage_encrypted
-  kms_key_id            = var.kms_key_arn
-  publicly_accessible   = var.publicly_accessible
-  enable_http_endpoint  = var.enable_http_endpoint
+  engine                 = var.engine
+  engine_mode            = var.engine_mode
+  engine_version         = var.engine_mode == "serverless" ? null : var.engine_version
+  scaling_configuration  = var.engine_mode == "serverless" ? var.scaling_configuration : {}
+  instance_class         = var.engine_mode == "serverless" ? null : var.instance_type
+  storage_encrypted      = var.storage_encrypted
+  kms_key_id             = var.kms_key_arn
+  publicly_accessible    = var.publicly_accessible
+  enable_http_endpoint   = var.enable_http_endpoint
+  create_db_subnet_group = true
 
-  instances = var.instances_config
+  instances                 = var.instances_config
+  global_cluster_identifier = var.global_cluster_enable ? aws_rds_global_cluster.this[0].id : null
 
-  database_name          = var.database_name
-  master_username        = var.master_username
-  create_random_password = var.create_random_password
-  port                   = var.port
+  database_name   = var.database_name
+  master_username = var.master_username
+  # create_random_password = var.create_random_password
+  manage_master_user_password = var.manage_master_user_password ? true : false
+  port                        = var.port
 
-  create_security_group   = var.create_security_group
-  vpc_id                  = var.vpc_id
-  allowed_cidr_blocks     = var.allowed_cidr_blocks
-  allowed_security_groups = var.allowed_security_groups
-  subnets                 = var.subnets
+  create_security_group = var.create_security_group
+  vpc_id                = var.vpc_id
+  # cidr_blocks     = var.allowed_cidr_blocks
+  # security_groups = var.allowed_security_groups
+  security_group_rules = {
+    vpc_ingress = {
+      cidr_blocks = "${var.allowed_cidr_blocks}"
+      # source_security_group_id = "${var.allowed_security_groups}"
+    }
+    egress_example = {
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Egress to Open World"
+    }
+  }
+  subnets         = var.subnets
+  master_password = var.manage_master_user_password ? null : random_password.master[0].result
 
-  deletion_protection                = var.deletion_protection
-  allow_major_version_upgrade        = var.allow_major_version_upgrade
-  skip_final_snapshot                = var.skip_final_snapshot
-  final_snapshot_identifier_prefix   = var.final_snapshot_identifier_prefix
+  deletion_protection         = var.deletion_protection
+  allow_major_version_upgrade = var.allow_major_version_upgrade
+  skip_final_snapshot         = var.skip_final_snapshot
+  # final_snapshot_identifier_prefix   = var.final_snapshot_identifier_prefix
   snapshot_identifier                = var.snapshot_identifier
   backup_retention_period            = var.backup_retention_period
   preferred_maintenance_window       = var.preferred_maintenance_window
@@ -109,4 +139,109 @@ resource "aws_rds_cluster_parameter_group" "rds_cluster_parameter_group" {
     name  = (var.engine == "aurora-mysql" ? "long_query_time" : "")
     value = (var.engine == "aurora-mysql" ? var.long_query_time : "")
   }
+}
+
+resource "aws_secretsmanager_secret" "secret_master_db" {
+  name = format("%s/%s/%s-%s", var.environment, var.rds_instance_name, var.engine, "aurora-pass")
+  tags = merge(
+    { "Name" = format("%s/%s/%s-%s", var.environment, var.rds_instance_name, var.engine, "aurora-pass") },
+    local.tags,
+  )
+}
+
+resource "random_password" "master" {
+  count   = var.manage_master_user_password ? 0 : 1
+  length  = var.random_password_length
+  special = false
+}
+
+resource "aws_secretsmanager_secret_version" "rds_credentials" {
+  count         = var.manage_master_user_password ? 0 : 1
+  secret_id     = aws_secretsmanager_secret.secret_master_db.id
+  secret_string = <<EOF
+{
+  "username": "${module.aurora.cluster_master_username}",
+  "password": "${random_password.master[0].result}",
+  "engine": "${var.engine}",
+  "host": "${module.aurora.cluster_endpoint}"
+}
+EOF
+}
+
+# resource "aws_security_group_rule" "ingress" {
+#   for_each = var.create_security_group ? var.security_group_egress_rules : {}
+
+#   # required
+#   type              = "ingress"
+#   from_port         = var.port
+#   to_port           = var.port
+#   protocol          = "tcp"
+#   security_group_id = module.aurora.security_group_id
+#   cidr_blocks       = var.allowed_cidr_blocks
+#   source_security_group_id = element(var.allowed_security_groups, count.index)
+# }
+
+# resource "aws_security_group_rule" "egress" {
+#   for_each = var.create_security_group && var.enable_egress_all ? var.security_group_egress_rules : {}
+
+#   # required
+#   type              = "egress"
+#   from_port         = 0
+#   to_port           = 0
+#   protocol          = "-1"
+#   security_group_id = module.aurora.security_group_id
+# }
+
+resource "aws_rds_global_cluster" "this" {
+  count                     = var.global_cluster_enable ? 1 : 0
+  global_cluster_identifier = format("%s-%s-%s", var.environment, var.rds_instance_name, "cluster")
+  engine                    = var.engine
+  engine_version            = var.engine_version
+  database_name             = var.database_name
+  storage_encrypted         = true
+}
+
+module "aurora_secondary" {
+  source    = "terraform-aws-modules/rds-aurora/aws"
+  count     = var.global_cluster_enable ? 1 : 0
+  version   = "8.3.0"
+  providers = { aws = aws.secondary }
+
+  is_primary_cluster = false
+
+  name                      = format("%s-%s-%s", var.environment, var.rds_instance_name, "secondary")
+  engine                    = aws_rds_global_cluster.this[0].engine
+  engine_version            = aws_rds_global_cluster.this[0].engine_version
+  global_cluster_identifier = aws_rds_global_cluster.this[0].id
+  source_region             = var.region
+  instance_class            = var.instance_type
+  instances                 = var.instances_config
+  kms_key_id                = var.secondary_kms_key_arn
+
+  vpc_id                 = var.secondary_vpc_id
+  create_db_subnet_group = true
+  security_group_rules = {
+    vpc_ingress = {
+      cidr_blocks = "${var.secondary_vpc_allowed_cidr_blocks}"
+      # source_security_group_id = "${var.secondary_vpc_allowed_security_groups}"
+    }
+    egress_example = {
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Egress to Open World"
+    }
+  }
+
+  # Global clusters do not support managed master user password
+  master_password = random_password.master[0].result
+
+  skip_final_snapshot = true
+
+  depends_on = [
+    module.aurora
+  ]
+
+  tags = merge(
+    { "Name" = format("%s-%s-%s", var.environment, var.rds_instance_name, "secondary") },
+    local.tags,
+  )
 }

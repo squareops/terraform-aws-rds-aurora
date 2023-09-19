@@ -1,6 +1,6 @@
 variable "allowed_cidr_blocks" {
   description = "A list of CIDR blocks which are allowed to access the database"
-  type        = list(string)
+  type        = any
   default     = []
 }
 
@@ -12,7 +12,7 @@ variable "allow_major_version_upgrade" {
 
 variable "allowed_security_groups" {
   description = "A list of Security Group IDs to allow access to the database"
-  type        = list(string)
+  type        = any
   default     = []
 }
 
@@ -292,4 +292,76 @@ variable "long_query_time" {
   description = "To prevent fast-running queries from being logged in the slow query log, specify a value for the shortest query runtime to be logged, in seconds"
   type        = number
   default     = 10
+}
+
+variable "manage_master_user_password" {
+  description = "Set to true to allow RDS to manage the master user password in Secrets Manager. Cannot be set if `master_password` is provided"
+  type        = bool
+  default     = false
+}
+
+variable "random_password_length" {
+  description = "The length of the randomly generated password. (default: 10)"
+  type        = number
+  default     = 16
+}
+
+variable "enable_egress" {
+  description = "Set it true if allow outbound traffic in rds security group"
+  type        = bool
+  default     = true
+}
+
+variable "security_group_rules" {
+  description = "Map of security group rules to add to the cluster security group created"
+  type        = any
+  default     = {}
+}
+
+variable "global_cluster_enable" {
+  description = "Whether enable global cluster then set it to true"
+  type        = bool
+  default     = false
+}
+
+variable "secondary_kms_key_arn" {
+  description = "The ARN for the secondary region KMS encryption key. If creating an encrypted replica, set this to the destination KMS ARN.  If storage_encrypted is set to true and kms_key_id is not specified the default KMS key created in your account will be used"
+  type        = string
+  default     = null
+}
+
+variable "secondary_vpc_id" {
+  description = "The secondary VPC in which secondary RDS will be launched"
+  type        = string
+  default     = ""
+}
+
+variable "secondary_vpc_allowed_cidr_blocks" {
+  description = "A list of CIDR blocks which are allowed to access the database"
+  type        = any
+  default     = []
+}
+
+variable "secondary_vpc_allowed_security_groups" {
+  description = "A list of Security Group IDs to allow access to the database"
+  type        = any
+  default     = []
+}
+
+variable "region" {
+  description = "AWS region name where the primary RDS resources will be deployed"
+  default     = null
+  type        = string
+}
+
+variable "secondary_region" {
+  description = "Secondary AWS region name where the Secondary RDS and VPC resources will be deployed"
+  default     = null
+  type        = string
+}
+
+variable "global_cluster_identifier" {
+  description = "Global RDS Cluster Identifier name"
+  default     = null
+  type        = string
 }
