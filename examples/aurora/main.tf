@@ -2,12 +2,12 @@
 locals {
   name              = "skaf"
   region            = "us-east-2"
-  port              = 5432 / 3306
-  family            = "aurora-postgresql15/aurora-mysql5.7"
-  engine            = "aurora-postgresql/aurora-mysql"
+  port              = 5432                  #/3306
+  family            = "aurora-postgresql15" #/aurora-mysql5.7"
+  engine            = "aurora-postgresql"   #/aurora-mysql"
   vpc_cidr          = "10.0.0.0/16"
   environment       = "production"
-  db_engine_version = "15.2/5.7"
+  db_engine_version = "15.2" #/5.7"
   db_instance_class = "db.r5.large"
   additional_aws_tags = {
     Owner      = "Organization_Name"
@@ -82,7 +82,7 @@ module "vpc" {
 
 
 module "aurora" {
-  source                           = "git@github.com:sq-ia/terraform-aws-rds-aurora.git"
+  source                           = "../.." #"git@github.com:sq-ia/terraform-aws-rds-aurora.git"
   environment                      = local.environment
   port                             = local.port
   vpc_id                           = module.vpc.vpc_id

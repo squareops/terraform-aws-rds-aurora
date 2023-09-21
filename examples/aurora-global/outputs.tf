@@ -1,11 +1,21 @@
-output "aurora_cluster_endpoint" {
+output "aurora_primary_cluster_endpoint" {
   description = "The endpoint URL of the Aurora cluster"
   value       = module.aurora.rds_cluster_endpoint
 }
 
-output "aurora_cluster_reader_endpoint" {
+output "aurora_primary_cluster_reader_endpoint" {
   description = "The reader endpoint URL of the Aurora cluster"
   value       = module.aurora.rds_cluster_reader_endpoint
+}
+
+output "aurora_secondary_cluster_endpoint" {
+  description = "The endpoint URL of the Aurora cluster seconadry instance"
+  value       = module.aurora.secondary_rds_cluster_endpoint
+}
+
+output "aurora_secondary_cluster_reader_endpoint" {
+  description = "The reader endpoint URL of the Aurora cluster secondary instance"
+  value       = module.aurora.secondary_rds_cluster_reader_endpoint
 }
 
 output "aurora_cluster_master_password" {

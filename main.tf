@@ -168,30 +168,6 @@ resource "aws_secretsmanager_secret_version" "rds_credentials" {
 EOF
 }
 
-# resource "aws_security_group_rule" "ingress" {
-#   for_each = var.create_security_group ? var.security_group_egress_rules : {}
-
-#   # required
-#   type              = "ingress"
-#   from_port         = var.port
-#   to_port           = var.port
-#   protocol          = "tcp"
-#   security_group_id = module.aurora.security_group_id
-#   cidr_blocks       = var.allowed_cidr_blocks
-#   source_security_group_id = element(var.allowed_security_groups, count.index)
-# }
-
-# resource "aws_security_group_rule" "egress" {
-#   for_each = var.create_security_group && var.enable_egress_all ? var.security_group_egress_rules : {}
-
-#   # required
-#   type              = "egress"
-#   from_port         = 0
-#   to_port           = 0
-#   protocol          = "-1"
-#   security_group_id = module.aurora.security_group_id
-# }
-
 resource "aws_rds_global_cluster" "this" {
   count                     = var.global_cluster_enable ? 1 : 0
   global_cluster_identifier = format("%s-%s-%s", var.environment, var.rds_instance_name, "cluster")
@@ -217,9 +193,9 @@ module "aurora_secondary" {
   instance_class            = var.instance_type
   instances                 = var.instances_config
   kms_key_id                = var.secondary_kms_key_arn
-
-  vpc_id                 = var.secondary_vpc_id
-  create_db_subnet_group = true
+  subnets                   = var.secondary_subnets
+  vpc_id                    = var.secondary_vpc_id
+  create_db_subnet_group    = true
   security_group_rules = {
     vpc_ingress = {
       cidr_blocks = "${var.secondary_vpc_allowed_cidr_blocks}"

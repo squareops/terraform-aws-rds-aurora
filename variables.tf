@@ -178,6 +178,12 @@ variable "subnets" {
   default     = []
 }
 
+variable "secondary_subnets" {
+  description = "List of subnet IDs used by database subnet group created in secondary region"
+  type        = list(string)
+  default     = []
+}
+
 variable "vpc_id" {
   description = "In which VPC do you want to deploy the RDS cluster"
   type        = string

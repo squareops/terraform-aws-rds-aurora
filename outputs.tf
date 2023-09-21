@@ -8,6 +8,17 @@ output "rds_cluster_reader_endpoint" {
   value       = module.aurora.cluster_reader_endpoint
 }
 
+output "secondary_rds_cluster_endpoint" {
+  description = "The endpoint URL of the Aurora cluster secondary instance"
+  value       = var.global_cluster_enable ? module.aurora_secondary[0].cluster_endpoint : null
+}
+
+output "secondary_rds_cluster_reader_endpoint" {
+  description = "A read-only endpoint for the cluster, automatically load-balanced across replicas"
+  value       = var.global_cluster_enable ? module.aurora_secondary[0].cluster_reader_endpoint : null
+}
+
+
 output "rds_cluster_master_password" {
   description = "The master password for the Aurora cluster"
   value       = nonsensitive(module.aurora.cluster_master_password)

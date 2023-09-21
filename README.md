@@ -159,6 +159,7 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 | <a name="input_scaling_configuration"></a> [scaling\_configuration](#input\_scaling\_configuration) | Map of nested attributes with scaling properties. Only valid when engine\_mode is set to `serverless` | `map(string)` | `{}` | no |
 | <a name="input_secondary_kms_key_arn"></a> [secondary\_kms\_key\_arn](#input\_secondary\_kms\_key\_arn) | The ARN for the secondary region KMS encryption key. If creating an encrypted replica, set this to the destination KMS ARN.  If storage\_encrypted is set to true and kms\_key\_id is not specified the default KMS key created in your account will be used | `string` | `null` | no |
 | <a name="input_secondary_region"></a> [secondary\_region](#input\_secondary\_region) | Secondary AWS region name where the Secondary RDS and VPC resources will be deployed | `string` | `null` | no |
+| <a name="input_secondary_subnets"></a> [secondary\_subnets](#input\_secondary\_subnets) | List of subnet IDs used by database subnet group created in secondary region | `list(string)` | `[]` | no |
 | <a name="input_secondary_vpc_allowed_cidr_blocks"></a> [secondary\_vpc\_allowed\_cidr\_blocks](#input\_secondary\_vpc\_allowed\_cidr\_blocks) | A list of CIDR blocks which are allowed to access the database | `any` | `[]` | no |
 | <a name="input_secondary_vpc_allowed_security_groups"></a> [secondary\_vpc\_allowed\_security\_groups](#input\_secondary\_vpc\_allowed\_security\_groups) | A list of Security Group IDs to allow access to the database | `any` | `[]` | no |
 | <a name="input_secondary_vpc_id"></a> [secondary\_vpc\_id](#input\_secondary\_vpc\_id) | The secondary VPC in which secondary RDS will be launched | `string` | `""` | no |
@@ -179,6 +180,8 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 | <a name="output_rds_cluster_master_password"></a> [rds\_cluster\_master\_password](#output\_rds\_cluster\_master\_password) | The master password for the Aurora cluster |
 | <a name="output_rds_cluster_master_username"></a> [rds\_cluster\_master\_username](#output\_rds\_cluster\_master\_username) | The master username for the Aurora cluster |
 | <a name="output_rds_cluster_reader_endpoint"></a> [rds\_cluster\_reader\_endpoint](#output\_rds\_cluster\_reader\_endpoint) | The reader endpoint URL of the Aurora cluster |
+| <a name="output_secondary_rds_cluster_endpoint"></a> [secondary\_rds\_cluster\_endpoint](#output\_secondary\_rds\_cluster\_endpoint) | The endpoint URL of the Aurora cluster secondary instance |
+| <a name="output_secondary_rds_cluster_reader_endpoint"></a> [secondary\_rds\_cluster\_reader\_endpoint](#output\_secondary\_rds\_cluster\_reader\_endpoint) | A read-only endpoint for the cluster, automatically load-balanced across replicas |
 | <a name="output_security_group_id"></a> [security\_group\_id](#output\_security\_group\_id) | The security group ID associated with the Aurora cluster |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
