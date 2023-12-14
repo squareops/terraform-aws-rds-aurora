@@ -1,33 +1,100 @@
+
 locals {
-  environment             = "production"
-  name                    = "skaf"
-  region                  = "us-east-2"
-  port                    = 5432 / 3306
-  family                  = "aurora-postgresql15/aurora-mysql5.7"
-  engine                  = "aurora-postgresql/aurora-mysql"
-  vpc_id                  = "vpc-00ae5511ee10671c1"
-  subnets                 = ["subnet-0d9a81939c6dd2a6e", "subnet-0fd26f0d73dc9e73d"]
-  kms_key_arn             = "arn:aws:kms:us-east-2:271251951598:key/73ff9e84-83e1-4097-b388-fe29623338a9"
-  db_engine_version       = "15.2/5.7"
-  db_instance_class       = "db.r5.large"
-  allowed_security_groups = ["sg-0a680184e11eafd35"]
+  name              = "skaf"
+  region            = "us-east-2"
+  port              = 5432                  #/3306
+  family            = "aurora-postgresql15" #/aurora-mysql5.7"
+  engine            = "aurora-postgresql"   #/aurora-mysql"
+  vpc_cidr          = "10.0.0.0/16"
+  environment       = "production"
+  db_engine_version = "15.2" #/5.7"
+  db_instance_class = "db.r5.large"
+  additional_aws_tags = {
+    Owner      = "Organization_Name"
+    Expires    = "Never"
+    Department = "Engineering"
+  }
+  current_identity        = data.aws_caller_identity.current.arn
+  allowed_security_groups = ["sg-0ef14212995d67a2d"]
+  allowed_cidr_blocks     = ["10.10.0.0/16"]
 }
 
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+module "kms" {
+  source = "terraform-aws-modules/kms/aws"
+
+  deletion_window_in_days = 7
+  description             = "Complete key example showing various configurations available"
+  enable_key_rotation     = false
+  is_enabled              = true
+  key_usage               = "ENCRYPT_DECRYPT"
+  multi_region            = false
+
+  # Policy
+  enable_default_policy = true
+  key_owners            = [local.current_identity]
+  key_administrators    = [local.current_identity]
+  key_users             = [local.current_identity]
+  key_service_users     = [local.current_identity]
+  key_statements = [
+    {
+      sid = "CloudWatchLogs"
+      actions = [
+        "kms:Encrypt*",
+        "kms:Decrypt*",
+        "kms:ReEncrypt*",
+        "kms:GenerateDataKey*",
+        "kms:Describe*"
+      ]
+      resources = ["*"]
+
+      principals = [
+        {
+          type        = "AWS"
+          identifiers = ["*"]
+        }
+      ]
+    }
+  ]
+
+  # Aliases
+  aliases = ["${local.name}"]
+
+  tags = local.additional_aws_tags
+}
+
+module "vpc" {
+  source                  = "squareops/vpc/aws"
+  name                    = local.name
+  vpc_cidr                = local.vpc_cidr
+  environment             = local.environment
+  availability_zones      = ["us-east-2a", "us-east-2b"]
+  public_subnet_enabled   = true
+  auto_assign_public_ip   = true
+  intra_subnet_enabled    = false
+  private_subnet_enabled  = true
+  one_nat_gateway_per_az  = false
+  database_subnet_enabled = true
+}
+
+
+
 module "aurora" {
-  source                           = "git@github.com:sq-ia/terraform-aws-rds-aurora.git"
+  source                           = "../.." #"git@github.com:sq-ia/terraform-aws-rds-aurora.git"
   environment                      = local.environment
   port                             = local.port
-  vpc_id                           = local.vpc_id
+  vpc_id                           = module.vpc.vpc_id
   family                           = local.family
-  subnets                          = local.subnets
+  subnets                          = module.vpc.database_subnets
   engine                           = local.engine
   engine_version                   = local.db_engine_version
   rds_instance_name                = local.name
   create_security_group            = true
-  allowed_security_groups          = local.allowed_security_groups
   instance_type                    = local.db_instance_class
   storage_encrypted                = true
-  kms_key_arn                      = local.kms_key_arn
+  kms_key_arn                      = module.kms.key_arn
   publicly_accessible              = false
   master_username                  = "devuser"
   database_name                    = "devdb"
@@ -49,4 +116,6 @@ module "aurora" {
   autoscaling_target_connections   = 40
   autoscaling_scale_in_cooldown    = 60
   autoscaling_scale_out_cooldown   = 30
+  allowed_cidr_blocks              = local.allowed_cidr_blocks
+  allowed_security_groups          = local.allowed_security_groups
 }
