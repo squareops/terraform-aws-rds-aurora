@@ -221,3 +221,32 @@ module "aurora_secondary" {
     local.tags,
   )
 }
+module "backup_restore" {
+  depends_on             = [module.aurora]
+  source                 = "./modules/db-backup-restore"
+  cluster_name           = var.cluster_name
+  namespace              = var.namespace
+  create_namespace       = var.create_namespace
+  mysqldb_backup_enabled = var.mysqldb_backup_enabled
+  mysqldb_backup_config = {
+    db_username          = var.master_username
+    db_password          = nonsensitive(random_password.master[0].result)
+    mysql_database_name  = var.mysqldb_backup_config.mysql_database_name
+    s3_bucket_region     = var.mysqldb_backup_config.s3_bucket_region            
+    cron_for_full_backup = var.mysqldb_backup_config.cron_for_full_backup            
+    bucket_uri           = var.mysqldb_backup_config.bucket_uri
+    db_endpoint          = module.aurora.cluster_endpoint
+  }
+
+  mysqldb_restore_enabled = var.mysqldb_restore_enabled
+  mysqldb_restore_config  = {
+    db_endpoint      = module.aurora.cluster_endpoint,
+    db_username      = var.master_username
+    db_password      = nonsensitive(random_password.master[0].result)
+    bucket_uri       = var.mysqldb_restore_config.bucket_uri
+    file_name        = var.mysqldb_restore_config.file_name                       
+    s3_bucket_region = var.mysqldb_restore_config.s3_bucket_region 
+    DB_NAME          = var.mysqldb_restore_config.DB_NAME,  
+    backup_file_name = var.mysqldb_restore_config.backup_file_name,                              
+  }
+}

@@ -7,6 +7,8 @@ locals {
   engine            = "aurora-postgresql"   #/aurora-mysql"
   vpc_cidr          = "10.0.0.0/16"
   environment       = "production"
+  create_namespace  = true
+  namespace         = "mysql"
   db_engine_version = "15.2" #/5.7"
   db_instance_class = "db.r5.large"
   additional_aws_tags = {
@@ -118,4 +120,22 @@ module "aurora" {
   autoscaling_scale_out_cooldown   = 30
   allowed_cidr_blocks              = local.allowed_cidr_blocks
   allowed_security_groups          = local.allowed_security_groups
+  cluster_name                     = "cluster-name"
+  namespace                        = local.namespace
+  create_namespace                 = local.create_namespace
+  mysqldb_backup_enabled = false
+  mysqldb_backup_config = {
+    mysql_database_name  = "" # which database backup you want
+    s3_bucket_region     = "" 
+    cron_for_full_backup = "" 
+    bucket_uri           = ""
+  }
+  mysqldb_restore_enabled = true
+  mysqldb_restore_config = {
+    bucket_uri       = "" 
+    backup_file_name = "" #Give only .sql or .zip file for restore
+    s3_bucket_region = ""
+    DB_NAME          = "" # which db to restore backup file
+    
+  }
 }
