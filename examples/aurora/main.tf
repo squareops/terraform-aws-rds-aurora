@@ -1,5 +1,7 @@
 
 locals {
+  role_arn           = "" # Pass role arn of another aws account in which you want to create RDS, make sure to add required policies in role.
+  assume_role_config = length(local.role_arn) > 0 ? { role_arn = local.role_arn } : null
   name              = "skaf"
   region            = "us-east-2"
   port              = 5432                  #/3306
@@ -21,6 +23,9 @@ locals {
 
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
+data "aws_partition" "current" {
+  depends_on = [data.aws_caller_identity.current]
+}
 
 module "kms" {
   source = "terraform-aws-modules/kms/aws"
