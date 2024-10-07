@@ -6,15 +6,17 @@ locals {
   region             = var.region
   secondary_region   = var.secondary_region
   role_arn           = var.role_arn
+  external_id        = var.external_id
   assume_role_config = length(var.role_arn) > 0 ? { role_arn = var.role_arn } : null
 }
 
 provider "aws" {
   region = local.region
   dynamic "assume_role" {
-    for_each = local.assume_role_config != null ? [local.assume_role_config] : []
+    for_each = local.assume_role_config != null ? [1] : []
     content {
-      role_arn = assume_role.value.role_arn
+      role_arn    = local.assume_role_config["role_arn"]
+      external_id = local.external_id
     }
   }
 }
@@ -28,9 +30,6 @@ data "aws_caller_identity" "current" {}
 data "aws_availability_zones" "primary" {}
 data "aws_availability_zones" "secondary" {
   provider = aws.secondary
-}
-data "aws_partition" "current" {
-  depends_on = [data.aws_caller_identity.current]
 }
 
 module "aurora" {

@@ -378,8 +378,8 @@ variable "role_arn" {
   default     = "" # Default to empty string if not provided
 }
 
-variable "assume_role_arn" {
-  description = "Optional ARN for assuming a role."
+variable "external_id" {
+  description = "External ID for assuming role."
   type        = string
   default     = "" # Default to empty string if not provided
 }

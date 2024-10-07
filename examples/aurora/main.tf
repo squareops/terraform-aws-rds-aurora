@@ -1,6 +1,7 @@
 
 locals {
   role_arn           = "" # Pass role arn of another aws account in which you want to create RDS, make sure to add required policies in role.
+  external_id        = "" # Define your external ID here
   assume_role_config = length(local.role_arn) > 0 ? { role_arn = local.role_arn } : null
   name               = "skaf"
   region             = "us-east-2"
@@ -23,9 +24,6 @@ locals {
 
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
-data "aws_partition" "current" {
-  depends_on = [data.aws_caller_identity.current]
-}
 
 module "kms" {
   source = "terraform-aws-modules/kms/aws"
@@ -88,6 +86,8 @@ module "vpc" {
 
 module "aurora" {
   source                           = "../.." #"git@github.com:sq-ia/terraform-aws-rds-aurora.git"
+  role_arn                         = local.role_arn
+  external_id                      = local.external_id
   environment                      = local.environment
   port                             = local.port
   vpc_id                           = module.vpc.vpc_id
