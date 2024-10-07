@@ -104,6 +104,7 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 | [aws_availability_zones.primary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
 | [aws_availability_zones.secondary](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
 
 ## Inputs
 
@@ -113,6 +114,7 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 | <a name="input_allowed_cidr_blocks"></a> [allowed\_cidr\_blocks](#input\_allowed\_cidr\_blocks) | A list of CIDR blocks which are allowed to access the database | `any` | `[]` | no |
 | <a name="input_allowed_security_groups"></a> [allowed\_security\_groups](#input\_allowed\_security\_groups) | A list of Security Group IDs to allow access to the database | `any` | `[]` | no |
 | <a name="input_apply_immediately"></a> [apply\_immediately](#input\_apply\_immediately) | Specifies whether any cluster modifications are applied immediately or during the next maintenance window | `bool` | `false` | no |
+| <a name="input_assume_role_arn"></a> [assume\_role\_arn](#input\_assume\_role\_arn) | Optional ARN for assuming a role. | `string` | `""` | no |
 | <a name="input_autoscaling_cpu"></a> [autoscaling\_cpu](#input\_autoscaling\_cpu) | CPU usage to trigger autoscaling at | `number` | `70` | no |
 | <a name="input_autoscaling_enabled"></a> [autoscaling\_enabled](#input\_autoscaling\_enabled) | Whether to enable autoscaling for RDS Aurora (MySQL) read replicas | `bool` | `false` | no |
 | <a name="input_autoscaling_max"></a> [autoscaling\_max](#input\_autoscaling\_max) | Maximum number of replicas to allow scaling for | `number` | `3` | no |
@@ -139,7 +141,7 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 | <a name="input_global_cluster_identifier"></a> [global\_cluster\_identifier](#input\_global\_cluster\_identifier) | Global RDS Cluster Identifier name | `string` | `null` | no |
 | <a name="input_iam_database_authentication_enabled"></a> [iam\_database\_authentication\_enabled](#input\_iam\_database\_authentication\_enabled) | Specifies whether or mappings of AWS Identity and Access Management (IAM) accounts to database accounts is enabled | `bool` | `null` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type | `string` | `"db.m5.large"` | no |
-| <a name="input_instances_config"></a> [instances\_config](#input\_instances\_config) | Map of cluster instances and any specific/overriding attributes to be created | `map(any)` | <pre>{<br>  "one": {}<br>}</pre> | no |
+| <a name="input_instances_config"></a> [instances\_config](#input\_instances\_config) | Map of cluster instances and any specific/overriding attributes to be created | `map(any)` | <pre>{<br/>  "one": {}<br/>}</pre> | no |
 | <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | The ARN for the KMS encryption key. If creating an encrypted replica, set this to the destination KMS ARN.  If storage\_encrypted is set to true and kms\_key\_id is not specified the default KMS key created in your account will be used | `string` | `null` | no |
 | <a name="input_long_query_time"></a> [long\_query\_time](#input\_long\_query\_time) | To prevent fast-running queries from being logged in the slow query log, specify a value for the shortest query runtime to be logged, in seconds | `number` | `10` | no |
 | <a name="input_manage_master_user_password"></a> [manage\_master\_user\_password](#input\_manage\_master\_user\_password) | Set to true to allow RDS to manage the master user password in Secrets Manager. Cannot be set if `master_password` is provided | `bool` | `false` | no |
@@ -156,6 +158,7 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 | <a name="input_random_password_length"></a> [random\_password\_length](#input\_random\_password\_length) | The length of the randomly generated password. (default: 10) | `number` | `16` | no |
 | <a name="input_rds_instance_name"></a> [rds\_instance\_name](#input\_rds\_instance\_name) | The name of the RDS instance | `string` | `""` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS region name where the primary RDS resources will be deployed | `string` | `null` | no |
+| <a name="input_role_arn"></a> [role\_arn](#input\_role\_arn) | The ARN of the role to assume. Leave empty if not using assume role. | `string` | `""` | no |
 | <a name="input_scaling_configuration"></a> [scaling\_configuration](#input\_scaling\_configuration) | Map of nested attributes with scaling properties. Only valid when engine\_mode is set to `serverless` | `map(string)` | `{}` | no |
 | <a name="input_secondary_kms_key_arn"></a> [secondary\_kms\_key\_arn](#input\_secondary\_kms\_key\_arn) | The ARN for the secondary region KMS encryption key. If creating an encrypted replica, set this to the destination KMS ARN.  If storage\_encrypted is set to true and kms\_key\_id is not specified the default KMS key created in your account will be used | `string` | `null` | no |
 | <a name="input_secondary_region"></a> [secondary\_region](#input\_secondary\_region) | Secondary AWS region name where the Secondary RDS and VPC resources will be deployed | `string` | `null` | no |

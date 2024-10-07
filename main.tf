@@ -3,10 +3,10 @@ locals {
     Automation  = "true"
     Environment = var.environment
   }
-  region           = var.region
-  secondary_region = var.secondary_region
-  role_arn            = var.role_arn
-  assume_role_config  = length(var.role_arn) > 0 ? { role_arn = var.role_arn } : null
+  region             = var.region
+  secondary_region   = var.secondary_region
+  role_arn           = var.role_arn
+  assume_role_config = length(var.role_arn) > 0 ? { role_arn = var.role_arn } : null
 }
 
 provider "aws" {

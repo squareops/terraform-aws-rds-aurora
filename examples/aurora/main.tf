@@ -2,15 +2,15 @@
 locals {
   role_arn           = "" # Pass role arn of another aws account in which you want to create RDS, make sure to add required policies in role.
   assume_role_config = length(local.role_arn) > 0 ? { role_arn = local.role_arn } : null
-  name              = "skaf"
-  region            = "us-east-2"
-  port              = 5432                  #/3306
-  family            = "aurora-postgresql15" #/aurora-mysql5.7"
-  engine            = "aurora-postgresql"   #/aurora-mysql"
-  vpc_cidr          = "10.0.0.0/16"
-  environment       = "production"
-  db_engine_version = "15.2" #/5.7"
-  db_instance_class = "db.r5.large"
+  name               = "skaf"
+  region             = "us-east-2"
+  port               = 5432                  #/3306
+  family             = "aurora-postgresql15" #/aurora-mysql5.7"
+  engine             = "aurora-postgresql"   #/aurora-mysql"
+  vpc_cidr           = "10.0.0.0/16"
+  environment        = "production"
+  db_engine_version  = "15.2" #/5.7"
+  db_instance_class  = "db.r5.large"
   additional_aws_tags = {
     Owner      = "Organization_Name"
     Expires    = "Never"
