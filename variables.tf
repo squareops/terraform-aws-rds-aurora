@@ -371,3 +371,15 @@ variable "global_cluster_identifier" {
   default     = null
   type        = string
 }
+
+variable "role_arn" {
+  description = "The ARN of the role to assume. Leave empty if not using assume role."
+  type        = string
+  default     = "" # Default to empty string if not provided
+}
+
+variable "external_id" {
+  description = "External ID for assuming role."
+  type        = string
+  default     = "" # Default to empty string if not provided
+}

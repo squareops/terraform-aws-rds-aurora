@@ -1,14 +1,17 @@
 
 locals {
-  name              = "skaf"
-  region            = "us-east-2"
-  port              = 5432                  #/3306
-  family            = "aurora-postgresql15" #/aurora-mysql5.7"
-  engine            = "aurora-postgresql"   #/aurora-mysql"
-  vpc_cidr          = "10.0.0.0/16"
-  environment       = "production"
-  db_engine_version = "15.2" #/5.7"
-  db_instance_class = "db.r5.large"
+  role_arn           = "" # Pass role arn of another aws account in which you want to create RDS, make sure to add required policies in role.
+  external_id        = "" # Define your external ID here
+  assume_role_config = length(local.role_arn) > 0 ? { role_arn = local.role_arn } : null
+  name               = "skaf"
+  region             = "us-east-2"
+  port               = 5432                  #/3306
+  family             = "aurora-postgresql15" #/aurora-mysql5.7"
+  engine             = "aurora-postgresql"   #/aurora-mysql"
+  vpc_cidr           = "10.0.0.0/16"
+  environment        = "production"
+  db_engine_version  = "15.2" #/5.7"
+  db_instance_class  = "db.r5.large"
   additional_aws_tags = {
     Owner      = "Organization_Name"
     Expires    = "Never"
@@ -83,6 +86,8 @@ module "vpc" {
 
 module "aurora" {
   source                           = "../.." #"git@github.com:sq-ia/terraform-aws-rds-aurora.git"
+  role_arn                         = local.role_arn
+  external_id                      = local.external_id
   environment                      = local.environment
   port                             = local.port
   vpc_id                           = module.vpc.vpc_id
