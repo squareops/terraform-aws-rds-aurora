@@ -23,26 +23,27 @@ Features
 ## Usage Example
 ```hcl
   module "aurora" {
-  source                           = "git@github.com:sq-ia/terraform-aws-rds-aurora.git"
-  environment                      = "production"
-  port                             = "5432/3306" ## port for MySQL/postgreSQL
-  vpc_id                           = "vpc-xyz5ed733e273skaf"
-  family                           = "aurora-postgresql15/aurora-mysql5.7" #family
-  subnets                          = ["subnet-0d9a8dd2a6e", "subnet-0fd2c9e73d"]
-  engine                           = "aurora-postgresql/aurora-mysql"
-  engine_version                   = "15.2/5.7"
-  rds_instance_name                = "skaf"
+  source                           = "git@github.com:squareops/terraform-aws-rds-aurora.git"
+  role_arn                         = local.role_arn
+  external_id                      = local.external_id
+  environment                      = local.environment
+  port                             = local.port
+  vpc_id                           = module.vpc.vpc_id
+  family                           = local.family
+  subnets                          = module.vpc.database_subnets
+  engine                           = local.engine
+  engine_version                   = local.db_engine_version
+  rds_instance_name                = local.name
   create_security_group            = true
-  allowed_security_groups          = ["sg-0a68018afd35"]
-  instance_type                    = "db.r5.large"
+  instance_type                    = local.db_instance_class
   storage_encrypted                = true
-  kms_key_arn                      = "arn:aws:kms:us-east-2:27122222228:key/73ff9e84-83e1-623338a9"
+  kms_key_arn                      = module.kms.key_arn
   publicly_accessible              = false
   master_username                  = "devuser"
   database_name                    = "devdb"
   apply_immediately                = true
   create_random_password           = true
-  skip_final_snapshot              = true
+  skip_final_snapshot              = true #  Keeping final snapshot results in retention of DB options group and hence creates problems during destroy. So use this option wisely.
   snapshot_identifier              = null
   preferred_backup_window          = "03:00-06:00"
   preferred_maintenance_window     = "Mon:00:00-Mon:03:00"
@@ -58,6 +59,8 @@ Features
   autoscaling_target_connections   = 40
   autoscaling_scale_in_cooldown    = 60
   autoscaling_scale_out_cooldown   = 30
+  allowed_cidr_blocks              = local.allowed_cidr_blocks
+  allowed_security_groups          = local.allowed_security_groups
 }
 ```
 ## Security & Compliance [<img src="	https://prowler.pro/wp-content/themes/prowler-pro/assets/img/logo.svg" width="250" align="right" />](https://prowler.pro/)
