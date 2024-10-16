@@ -3,12 +3,22 @@ locals {
     Automation  = "true"
     Environment = var.environment
   }
-  region           = var.region
-  secondary_region = var.secondary_region
+  region             = var.region
+  secondary_region   = var.secondary_region
+  role_arn           = var.role_arn
+  external_id        = var.external_id
+  assume_role_config = length(var.role_arn) > 0 ? { role_arn = var.role_arn } : null
 }
 
 provider "aws" {
   region = local.region
+  dynamic "assume_role" {
+    for_each = local.assume_role_config != null ? [1] : []
+    content {
+      role_arn    = local.assume_role_config["role_arn"]
+      external_id = local.external_id
+    }
+  }
 }
 
 provider "aws" {
