@@ -23,7 +23,8 @@ Features
 ## Usage Example
 ```hcl
   module "aurora" {
-  source                           = "git@github.com:squareops/terraform-aws-rds-aurora.git"
+  source                           = "squareops/rds-aurora/aws"
+  version                          = "2.1.1"
   role_arn                         = local.role_arn
   external_id                      = local.external_id
   environment                      = local.environment
