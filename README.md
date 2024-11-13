@@ -23,26 +23,28 @@ Features
 ## Usage Example
 ```hcl
   module "aurora" {
-  source                           = "git@github.com:sq-ia/terraform-aws-rds-aurora.git"
-  environment                      = "production"
-  port                             = "5432/3306" ## port for MySQL/postgreSQL
-  vpc_id                           = "vpc-xyz5ed733e273skaf"
-  family                           = "aurora-postgresql15/aurora-mysql5.7" #family
-  subnets                          = ["subnet-0d9a8dd2a6e", "subnet-0fd2c9e73d"]
-  engine                           = "aurora-postgresql/aurora-mysql"
-  engine_version                   = "15.2/5.7"
-  rds_instance_name                = "skaf"
+  source                           = "squareops/rds-aurora/aws"
+  version                          = "2.1.1"
+  role_arn                         = local.role_arn
+  external_id                      = local.external_id
+  environment                      = local.environment
+  port                             = local.port
+  vpc_id                           = module.vpc.vpc_id
+  family                           = local.family
+  subnets                          = module.vpc.database_subnets
+  engine                           = local.engine
+  engine_version                   = local.db_engine_version
+  rds_instance_name                = local.name
   create_security_group            = true
-  allowed_security_groups          = ["sg-0a68018afd35"]
-  instance_type                    = "db.r5.large"
+  instance_type                    = local.db_instance_class
   storage_encrypted                = true
-  kms_key_arn                      = "arn:aws:kms:us-east-2:27122222228:key/73ff9e84-83e1-623338a9"
+  kms_key_arn                      = module.kms.key_arn
   publicly_accessible              = false
   master_username                  = "devuser"
   database_name                    = "devdb"
   apply_immediately                = true
   create_random_password           = true
-  skip_final_snapshot              = true
+  skip_final_snapshot              = true #  Keeping final snapshot results in retention of DB options group and hence creates problems during destroy. So use this option wisely.
   snapshot_identifier              = null
   preferred_backup_window          = "03:00-06:00"
   preferred_maintenance_window     = "Mon:00:00-Mon:03:00"
@@ -58,6 +60,8 @@ Features
   autoscaling_target_connections   = 40
   autoscaling_scale_in_cooldown    = 60
   autoscaling_scale_out_cooldown   = 30
+  allowed_cidr_blocks              = local.allowed_cidr_blocks
+  allowed_security_groups          = local.allowed_security_groups
 }
 ```
 ## Security & Compliance [<img src="	https://prowler.pro/wp-content/themes/prowler-pro/assets/img/logo.svg" width="250" align="right" />](https://prowler.pro/)
@@ -133,13 +137,14 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 | <a name="input_engine_mode"></a> [engine\_mode](#input\_engine\_mode) | The database engine mode. Valid values: global, parallelquery, provisioned, serverless, multimaster | `string` | `"provisioned"` | no |
 | <a name="input_engine_version"></a> [engine\_version](#input\_engine\_version) | The database engine version. Updating this argument results in an outage. | `string` | `""` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Select enviroment type: dev, demo, prod | `string` | `"demo"` | no |
+| <a name="input_external_id"></a> [external\_id](#input\_external\_id) | External ID for assuming role. | `string` | `""` | no |
 | <a name="input_family"></a> [family](#input\_family) | Version of aurora DB family being created | `string` | `"aurora-mysql5.7"` | no |
 | <a name="input_final_snapshot_identifier_prefix"></a> [final\_snapshot\_identifier\_prefix](#input\_final\_snapshot\_identifier\_prefix) | The prefix name to use when creating a final snapshot on cluster destroy, appends a random 8 digits to name to ensure it's unique too. | `string` | `"final"` | no |
 | <a name="input_global_cluster_enable"></a> [global\_cluster\_enable](#input\_global\_cluster\_enable) | Whether enable global cluster then set it to true | `bool` | `false` | no |
 | <a name="input_global_cluster_identifier"></a> [global\_cluster\_identifier](#input\_global\_cluster\_identifier) | Global RDS Cluster Identifier name | `string` | `null` | no |
 | <a name="input_iam_database_authentication_enabled"></a> [iam\_database\_authentication\_enabled](#input\_iam\_database\_authentication\_enabled) | Specifies whether or mappings of AWS Identity and Access Management (IAM) accounts to database accounts is enabled | `bool` | `null` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type | `string` | `"db.m5.large"` | no |
-| <a name="input_instances_config"></a> [instances\_config](#input\_instances\_config) | Map of cluster instances and any specific/overriding attributes to be created | `map(any)` | <pre>{<br>  "one": {}<br>}</pre> | no |
+| <a name="input_instances_config"></a> [instances\_config](#input\_instances\_config) | Map of cluster instances and any specific/overriding attributes to be created | `map(any)` | <pre>{<br/>  "one": {}<br/>}</pre> | no |
 | <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | The ARN for the KMS encryption key. If creating an encrypted replica, set this to the destination KMS ARN.  If storage\_encrypted is set to true and kms\_key\_id is not specified the default KMS key created in your account will be used | `string` | `null` | no |
 | <a name="input_long_query_time"></a> [long\_query\_time](#input\_long\_query\_time) | To prevent fast-running queries from being logged in the slow query log, specify a value for the shortest query runtime to be logged, in seconds | `number` | `10` | no |
 | <a name="input_manage_master_user_password"></a> [manage\_master\_user\_password](#input\_manage\_master\_user\_password) | Set to true to allow RDS to manage the master user password in Secrets Manager. Cannot be set if `master_password` is provided | `bool` | `false` | no |
@@ -156,6 +161,7 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 | <a name="input_random_password_length"></a> [random\_password\_length](#input\_random\_password\_length) | The length of the randomly generated password. (default: 10) | `number` | `16` | no |
 | <a name="input_rds_instance_name"></a> [rds\_instance\_name](#input\_rds\_instance\_name) | The name of the RDS instance | `string` | `""` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS region name where the primary RDS resources will be deployed | `string` | `null` | no |
+| <a name="input_role_arn"></a> [role\_arn](#input\_role\_arn) | The ARN of the role to assume. Leave empty if not using assume role. | `string` | `""` | no |
 | <a name="input_scaling_configuration"></a> [scaling\_configuration](#input\_scaling\_configuration) | Map of nested attributes with scaling properties. Only valid when engine\_mode is set to `serverless` | `map(string)` | `{}` | no |
 | <a name="input_secondary_kms_key_arn"></a> [secondary\_kms\_key\_arn](#input\_secondary\_kms\_key\_arn) | The ARN for the secondary region KMS encryption key. If creating an encrypted replica, set this to the destination KMS ARN.  If storage\_encrypted is set to true and kms\_key\_id is not specified the default KMS key created in your account will be used | `string` | `null` | no |
 | <a name="input_secondary_region"></a> [secondary\_region](#input\_secondary\_region) | Secondary AWS region name where the Secondary RDS and VPC resources will be deployed | `string` | `null` | no |
