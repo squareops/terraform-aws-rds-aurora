@@ -12,6 +12,7 @@ locals {
   environment        = "production"
   db_engine_version  = "15.2" #/5.7"
   db_instance_class  = "db.r5.large"
+  master_password   = ""  # Leave this field empty to have a password automatically generated.
   additional_aws_tags = {
     Owner      = "Organization_Name"
     Expires    = "Never"
@@ -85,8 +86,9 @@ module "vpc" {
 
 
 module "aurora" {
-  source                           = "squareops/rds-aurora/aws"
-  version                          = "2.1.1"
+  source                           = "../../"
+  # source                           = "squareops/rds-aurora/aws"
+  # version                          = "2.1.1"
   role_arn                         = local.role_arn
   external_id                      = local.external_id
   environment                      = local.environment
@@ -104,8 +106,8 @@ module "aurora" {
   publicly_accessible              = false
   master_username                  = "devuser"
   database_name                    = "devdb"
+  master_password                  = local.master_password
   apply_immediately                = true
-  create_random_password           = true
   skip_final_snapshot              = true #  Keeping final snapshot results in retention of DB options group and hence creates problems during destroy. So use this option wisely.
   snapshot_identifier              = null
   preferred_backup_window          = "03:00-06:00"

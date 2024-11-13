@@ -72,7 +72,8 @@ module "aurora" {
     }
   }
   subnets         = var.subnets
-  master_password = var.manage_master_user_password ? null : random_password.master[0].result
+  master_password = var.master_password != "" ? var.master_password : (length(random_password.master) > 0 ? random_password.master[0].result : null)
+
 
   deletion_protection         = var.deletion_protection
   allow_major_version_upgrade = var.allow_major_version_upgrade
@@ -160,18 +161,17 @@ resource "aws_secretsmanager_secret" "secret_master_db" {
 }
 
 resource "random_password" "master" {
-  count   = var.manage_master_user_password ? 0 : 1
+  count   = var.master_password == "" ? 1 : 0
   length  = var.random_password_length
   special = false
 }
 
 resource "aws_secretsmanager_secret_version" "rds_credentials" {
-  count         = var.manage_master_user_password ? 0 : 1
   secret_id     = aws_secretsmanager_secret.secret_master_db.id
   secret_string = <<EOF
 {
   "username": "${module.aurora.cluster_master_username}",
-  "password": "${random_password.master[0].result}",
+  "password": "${var.master_password != "" ? var.master_password : (length(random_password.master) > 0 ? random_password.master[0].result : null)}",
   "engine": "${var.engine}",
   "host": "${module.aurora.cluster_endpoint}"
 }
