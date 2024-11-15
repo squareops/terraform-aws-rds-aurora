@@ -19,7 +19,6 @@ locals {
     Department = "Engineering"
   }
   current_identity        = data.aws_caller_identity.current.arn
-  allowed_security_groups = ["sg-0ef14212995d67a2d"]
   allowed_cidr_blocks     = ["10.10.0.0/16"]
 }
 
