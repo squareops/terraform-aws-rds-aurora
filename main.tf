@@ -62,15 +62,23 @@ module "aurora" {
   # cidr_blocks     = var.allowed_cidr_blocks
   # security_groups = var.allowed_security_groups
   security_group_rules = {
-    vpc_ingress = {
-      cidr_blocks = "${var.allowed_cidr_blocks}"
-      # source_security_group_id = "${var.allowed_security_groups}"
-    }
-    egress_example = {
-      cidr_blocks = ["0.0.0.0/0"]
-      description = "Egress to Open World"
-    }
+  ingress_postgresql = {
+    description = "Allow inbound PostgreSQL traffic from trusted CIDR blocks"
+    type        = "ingress" 
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = var.allowed_cidr_blocks
   }
+  egress_allow_all = {
+    description = "Allow all outbound traffic"
+    type        = "egress"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
   subnets         = var.subnets
   master_password = var.master_password != "" ? var.master_password : (length(random_password.master) > 0 ? random_password.master[0].result : null)
 
