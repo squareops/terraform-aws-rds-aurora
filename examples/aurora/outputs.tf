@@ -8,6 +8,11 @@ output "aurora_cluster_reader_endpoint" {
   value       = module.aurora.rds_cluster_reader_endpoint
 }
 
+output "aurora_cluster_database_name" {
+  description = "The reader endpoint URL of the Aurora cluster"
+  value       = module.aurora.rds_cluster_database_name
+}
+
 output "aurora_cluster_master_password" {
   description = "The master password for the Aurora cluster"
   value       = module.aurora.rds_cluster_master_password

@@ -118,6 +118,12 @@ variable "master_username" {
   default     = "root"
 }
 
+variable "master_password" {
+  description = "The password for the primary cluster"
+  type        = string
+  default     = null
+}
+
 variable "port" {
   description = "The port for the database"
   type        = number
