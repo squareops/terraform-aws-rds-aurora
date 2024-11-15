@@ -12,13 +12,13 @@ locals {
   environment        = "production"
   db_engine_version  = "15.2" #/5.7"
   db_instance_class  = "db.r5.large"
+  master_password   = ""  # Leave this field empty to have a password automatically generated.
   additional_aws_tags = {
     Owner      = "Organization_Name"
     Expires    = "Never"
     Department = "Engineering"
   }
   current_identity        = data.aws_caller_identity.current.arn
-  allowed_security_groups = ["sg-0ef14212995d67a2d"]
   allowed_cidr_blocks     = ["10.10.0.0/16"]
 }
 
@@ -104,8 +104,8 @@ module "aurora" {
   publicly_accessible              = false
   master_username                  = "devuser"
   database_name                    = "devdb"
+  master_password                  = local.master_password
   apply_immediately                = true
-  create_random_password           = true
   skip_final_snapshot              = true #  Keeping final snapshot results in retention of DB options group and hence creates problems during destroy. So use this option wisely.
   snapshot_identifier              = null
   preferred_backup_window          = "03:00-06:00"
