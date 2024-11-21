@@ -86,7 +86,7 @@ module "vpc" {
 
 module "aurora" {
   source                           = "squareops/rds-aurora/aws"
-  version                          = "2.1.1"
+  version                          = "2.2.0"
   role_arn                         = local.role_arn
   external_id                      = local.external_id
   environment                      = local.environment
@@ -123,5 +123,4 @@ module "aurora" {
   autoscaling_scale_in_cooldown    = 60
   autoscaling_scale_out_cooldown   = 30
   allowed_cidr_blocks              = local.allowed_cidr_blocks
-  allowed_security_groups          = local.allowed_security_groups
 }
