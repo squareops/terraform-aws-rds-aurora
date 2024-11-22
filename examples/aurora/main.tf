@@ -86,7 +86,7 @@ module "vpc" {
 
 module "aurora" {
   source                           = "squareops/rds-aurora/aws"
-  version                          = "2.2.0"
+  version                          = "2.2.1"
   role_arn                         = local.role_arn
   external_id                      = local.external_id
   environment                      = local.environment
