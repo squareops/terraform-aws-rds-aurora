@@ -103,7 +103,7 @@ module "secondary_vpc" {
 
 module "aurora" {
   source                                = "squareops/rds-aurora/aws"
-  version                               = "2.1.1"
+  version                               = "2.2.1"
   environment                           = local.environment
   global_cluster_enable                 = true
   port                                  = local.port
