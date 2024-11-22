@@ -65,8 +65,8 @@ module "aurora" {
   ingress_postgresql = {
     description = "Allow inbound PostgreSQL traffic from trusted CIDR blocks"
     type        = "ingress" 
-    from_port   = 5432
-    to_port     = 5432
+    from_port   = var.port
+    to_port     = var.port
     protocol    = "tcp"
     cidr_blocks = var.allowed_cidr_blocks
   }
