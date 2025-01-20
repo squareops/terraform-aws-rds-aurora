@@ -1,10 +1,10 @@
 locals {
-  tags = {
+  tags               = {
     Automation  = "true"
     Environment = var.environment
   }
   region             = var.region
-  secondary_region   = var.secondary_region
+  secondary_region   = var.secondary_region != "null" ? var.secondary_region : null  # Check if secondary_region is null
   role_arn           = var.role_arn
   external_id        = var.external_id
   assume_role_config = length(var.role_arn) > 0 ? { role_arn = var.role_arn } : null
@@ -23,7 +23,7 @@ provider "aws" {
 
 provider "aws" {
   alias  = "secondary"
-  region = local.secondary_region
+  region = local.secondary_region != null ? local.secondary_region : var.region  # Fallback to primary region if secondary is null
 }
 
 data "aws_caller_identity" "current" {}
@@ -36,7 +36,7 @@ module "aurora" {
   source  = "terraform-aws-modules/rds-aurora/aws"
   version = "8.3.0"
   name    = format("%s-%s", var.environment, var.rds_instance_name)
-
+  # region                 = var.region
   engine                 = var.engine
   engine_mode            = var.engine_mode
   engine_version         = var.engine_mode == "serverless" ? null : var.engine_version
@@ -161,7 +161,7 @@ resource "aws_rds_cluster_parameter_group" "rds_cluster_parameter_group" {
 }
 
 resource "aws_secretsmanager_secret" "secret_master_db" {
-  name = format("%s/%s/%s-%s", var.environment, var.rds_instance_name, var.engine, "aurora-pass")
+  name = format("%s/%s/%s-%s", var.environment, var.rds_instance_name, var.engine, "aurora-password")
   tags = merge(
     { "Name" = format("%s/%s/%s-%s", var.environment, var.rds_instance_name, var.engine, "aurora-pass") },
     local.tags,
@@ -199,7 +199,7 @@ module "aurora_secondary" {
   source    = "terraform-aws-modules/rds-aurora/aws"
   count     = var.global_cluster_enable ? 1 : 0
   version   = "8.3.0"
-  providers = { aws = aws.secondary }
+  # providers = { aws = aws.secondary }
 
   is_primary_cluster = false
 
@@ -238,4 +238,34 @@ module "aurora_secondary" {
     { "Name" = format("%s-%s-%s", var.environment, var.rds_instance_name, "secondary") },
     local.tags,
   )
+}
+
+
+module "backup_restore" {
+  depends_on             = [module.aurora]
+  source                 = "./modules/db-backup-restore"
+  name                   = var.name
+  cluster_name           = var.cluster_name
+  namespace              = var.namespace
+  create_namespace       = var.create_namespace
+  bucket_provider_type   = var.bucket_provider_type
+  engine                 = var.engine
+  db_backup_enabled = var.db_backup_enabled
+  db_backup_config = {
+    db_username          = module.aurora.cluster_master_username
+    db_password          = var.master_password != "" ? var.master_password : nonsensitive(random_password.master[0].result)
+    mysql_database_name  = var.db_backup_config.mysql_database_name
+    cron_for_full_backup = var.db_backup_config.cron_for_full_backup
+    bucket_uri           = var.db_backup_config.bucket_uri
+    db_endpoint          = module.aurora.cluster_endpoint
+  }
+
+  db_restore_enabled = var.db_restore_enabled
+  db_restore_config = {
+    db_endpoint      = module.aurora.cluster_endpoint
+    db_username      = module.aurora.cluster_master_username
+    db_password      = var.master_password != "" ? var.master_password : nonsensitive(random_password.master[0].result)
+    bucket_uri       = var.db_restore_config.bucket_uri
+    file_name        = var.db_restore_config.file_name
+  }
 }

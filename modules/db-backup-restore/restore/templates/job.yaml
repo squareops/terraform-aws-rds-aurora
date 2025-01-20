@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restore
+spec:
+  template:
+    spec:
+      affinity: {{ .Values.affinity | toYaml | nindent 6 }}
+      serviceAccountName: sa-db-restore
+      containers:
+        - name: restore-job
+          image: {{ if eq .Values.restore.engine "aurora-mysql" }}amanravi12/rds-aurora-mysql-restore:v1{{ else }}squareops01/rds-postgresql-restore:v1{{ end }}
+          imagePullPolicy: Always
+          env:
+            - name: {{if eq .Values.restore.engine "aurora-mysql"}}MYSQL_HOST{{ else }}DB_HOST{{ end }}
+              value: {{ .Values.restore.database_endpoint }}
+            - name: {{if eq .Values.restore.engine "aurora-mysql"}}DATABASE{{ else }}DB_NAME{{ end }}
+              value: {{ .Values.restore.database_name }}
+            - name: {{if eq .Values.restore.engine "aurora-mysql"}}MYSQL_USER{{ else }}DB_USER{{ end }}
+              value: {{ .Values.restore.database_user }}
+            - name: {{if eq .Values.restore.engine "aurora-mysql"}}MYSQL_PASSWORD{{ else }}DB_PASSWORD{{ end }}
+              value: {{ .Values.restore.database_password }}
+            - name: {{if eq .Values.restore.engine "aurora-mysql"}}MYSQL_BUCKET_RESTORE_URI{{ else }}POSTGRESQL_BUCKET_RESTORE_URI{{ end }}
+              value: {{ .Values.restore.bucket_uri }}
+            - name: {{if eq .Values.restore.engine "aurora-mysql"}}RESTORE_FILE_NAME{{ else }}RESTORE_FILE_NAME{{ end }}
+              value: {{ .Values.restore.file_name}}
+          resources: {{ .Values.restorejob.resources | toYaml | nindent 12 }}
+      {{- if eq .Values.restore.engine "aurora-mysql" }}
+      initContainers:
+        - name: grant-system-variable-admin
+          image: mysql:8.0
+          command:
+            - /bin/bash
+            - -c
+            - |
+              # Connect to the MySQL server using the MySQL client
+              mysql -h "$MYSQL_HOST" -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO '$MYSQL_USER'@'%'; FLUSH PRIVILEGES;"
+              # Exit with status code 0 to indicate success
+              exit 0
+          env:
+            - name: MYSQL_HOST
+              value: {{ .Values.restore.database_endpoint }}
+            - name: MYSQL_USER
+              value: {{ .Values.restore.database_user }}
+            - name: MYSQL_PASSWORD
+              value: {{ .Values.restore.database_password }}
+      {{- end }}
+      restartPolicy: Never
+  backoffLimit: 4

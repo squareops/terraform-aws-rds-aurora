@@ -1,3 +1,8 @@
+variable "name" {
+  description = "The name of the RDS instance"
+  default     = ""
+  type        = string
+}
 variable "allowed_cidr_blocks" {
   description = "A list of CIDR blocks which are allowed to access the database"
   type        = any
@@ -388,4 +393,63 @@ variable "external_id" {
   description = "External ID for assuming role."
   type        = string
   default     = "" # Default to empty string if not provided
+}
+
+### backup & restore
+
+variable "cluster_name" {
+  type        = string
+  default     = ""
+  description = "Specifies the name of the EKS cluster to deploy the MySQL application on."
+}
+
+variable "create_namespace" {
+  type        = string
+  description = "Specify whether or not to create the namespace if it does not already exist. Set it to true to create the namespace."
+  default     = false
+}
+
+variable "namespace" {
+  type        = string
+  default     = "db"
+  description = "Name of the Kubernetes namespace where the MYSQL deployment will be deployed."
+}
+
+variable "db_backup_enabled" {
+  type        = bool
+  default     = false
+  description = "Specifies whether to enable backups for MySQL database."
+}
+
+variable "db_restore_enabled" {
+  type        = bool
+  default     = false
+  description = "Specifies whether to enable restoring dump to the MySQL database."
+}
+variable "bucket_provider_type" {
+  type        = string
+  default     = "s3"
+  description = "Choose what type of provider you want (s3, gcs)"
+}
+
+variable "db_backup_config" {
+  type = map(string)
+  default = {
+    bucket_uri           = ""
+    # s3_bucket_region     = ""
+    cron_for_full_backup = ""
+    mysql_database_name  = ""
+    # port                 =""
+  }
+  description = "configuration options for MySQL database backups. It includes properties such as the S3 bucket URI, the S3 bucket region, and the cron expression for full backups."
+}
+
+variable "db_restore_config" {
+  type = any
+  default = {
+    bucket_uri       = ""
+    file_name        = ""
+    # s3_bucket_region = ""
+  }
+  description = "Configuration options for restoring dump to the MySQL database."
 }
