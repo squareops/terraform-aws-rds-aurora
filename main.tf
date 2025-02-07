@@ -1,10 +1,10 @@
 locals {
-  tags               = {
+  tags = {
     Automation  = "true"
     Environment = var.environment
   }
   region             = var.region
-  secondary_region   = var.secondary_region != "null" ? var.secondary_region : null  # Check if secondary_region is null
+  secondary_region   = var.secondary_region != "null" ? var.secondary_region : null # Check if secondary_region is null
   role_arn           = var.role_arn
   external_id        = var.external_id
   assume_role_config = length(var.role_arn) > 0 ? { role_arn = var.role_arn } : null
@@ -23,7 +23,7 @@ provider "aws" {
 
 provider "aws" {
   alias  = "secondary"
-  region = local.secondary_region != null ? local.secondary_region : var.region  # Fallback to primary region if secondary is null
+  region = local.secondary_region != null ? local.secondary_region : var.region # Fallback to primary region if secondary is null
 }
 
 data "aws_caller_identity" "current" {}
@@ -62,23 +62,23 @@ module "aurora" {
   # cidr_blocks     = var.allowed_cidr_blocks
   # security_groups = var.allowed_security_groups
   security_group_rules = {
-  ingress_postgresql = {
-    description = "Allow inbound PostgreSQL traffic from trusted CIDR blocks"
-    type        = "ingress" 
-    from_port   = var.port
-    to_port     = var.port
-    protocol    = "tcp"
-    cidr_blocks = var.allowed_cidr_blocks
+    ingress_postgresql = {
+      description = "Allow inbound PostgreSQL traffic from trusted CIDR blocks"
+      type        = "ingress"
+      from_port   = var.port
+      to_port     = var.port
+      protocol    = "tcp"
+      cidr_blocks = var.allowed_cidr_blocks
+    }
+    egress_allow_all = {
+      description = "Allow all outbound traffic"
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
-  egress_allow_all = {
-    description = "Allow all outbound traffic"
-    type        = "egress"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
   subnets         = var.subnets
   master_password = var.master_password != "" ? var.master_password : (length(random_password.master) > 0 ? random_password.master[0].result : null)
 
@@ -196,9 +196,9 @@ resource "aws_rds_global_cluster" "this" {
 }
 
 module "aurora_secondary" {
-  source    = "terraform-aws-modules/rds-aurora/aws"
-  count     = var.global_cluster_enable ? 1 : 0
-  version   = "8.3.0"
+  source  = "terraform-aws-modules/rds-aurora/aws"
+  count   = var.global_cluster_enable ? 1 : 0
+  version = "8.3.0"
   # providers = { aws = aws.secondary }
 
   is_primary_cluster = false
@@ -242,15 +242,15 @@ module "aurora_secondary" {
 
 
 module "backup_restore" {
-  depends_on             = [module.aurora]
-  source                 = "./modules/db-backup-restore"
-  name                   = var.name
-  cluster_name           = var.cluster_name
-  namespace              = var.namespace
-  create_namespace       = var.create_namespace
-  bucket_provider_type   = var.bucket_provider_type
-  engine                 = var.engine
-  db_backup_enabled = var.db_backup_enabled
+  depends_on           = [module.aurora]
+  source               = "./modules/db-backup-restore"
+  name                 = var.name
+  cluster_name         = var.cluster_name
+  namespace            = var.namespace
+  create_namespace     = var.create_namespace
+  bucket_provider_type = var.bucket_provider_type
+  engine               = var.engine
+  db_backup_enabled    = var.db_backup_enabled
   db_backup_config = {
     db_username          = module.aurora.cluster_master_username
     db_password          = var.master_password != "" ? var.master_password : nonsensitive(random_password.master[0].result)
@@ -262,10 +262,10 @@ module "backup_restore" {
 
   db_restore_enabled = var.db_restore_enabled
   db_restore_config = {
-    db_endpoint      = module.aurora.cluster_endpoint
-    db_username      = module.aurora.cluster_master_username
-    db_password      = var.master_password != "" ? var.master_password : nonsensitive(random_password.master[0].result)
-    bucket_uri       = var.db_restore_config.bucket_uri
-    file_name        = var.db_restore_config.file_name
+    db_endpoint = module.aurora.cluster_endpoint
+    db_username = module.aurora.cluster_master_username
+    db_password = var.master_password != "" ? var.master_password : nonsensitive(random_password.master[0].result)
+    bucket_uri  = var.db_restore_config.bucket_uri
+    file_name   = var.db_restore_config.file_name
   }
 }

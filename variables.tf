@@ -435,7 +435,7 @@ variable "bucket_provider_type" {
 variable "db_backup_config" {
   type = map(string)
   default = {
-    bucket_uri           = ""
+    bucket_uri = ""
     # s3_bucket_region     = ""
     cron_for_full_backup = ""
     mysql_database_name  = ""
@@ -447,8 +447,8 @@ variable "db_backup_config" {
 variable "db_restore_config" {
   type = any
   default = {
-    bucket_uri       = ""
-    file_name        = ""
+    bucket_uri = ""
+    file_name  = ""
     # s3_bucket_region = ""
   }
   description = "Configuration options for restoring dump to the MySQL database."

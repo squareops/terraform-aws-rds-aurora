@@ -20,7 +20,7 @@ spec:
           serviceAccountName: sa-db-backup
           containers:
           - name: backup-database
-            image: {{ if eq .Values.backup.engine "aurora-mysql" }}amanravi12/rds-mysql-backup:v1{{ else }}squareops01/rds-postgresql-backup:v1{{ end }}
+            image: {{ if eq .Values.backup.engine "aurora-mysql" }}squareops01/rds-mysql-backup:v1{{ else }}squareops01/rds-postgresql-backup:v2{{ end }}
             imagePullPolicy: Always
             env:
             - name: {{if eq .Values.backup.engine "aurora-mysql"}}MYSQL_HOST{{ else }}DB_HOST{{ end }}

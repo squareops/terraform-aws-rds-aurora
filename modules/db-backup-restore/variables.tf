@@ -66,9 +66,9 @@ variable "cluster_name" {
 }
 
 variable "db_permission" {
-  default = false
+  default     = false
   description = "access"
-  type = bool
+  type        = bool
 }
 
 variable "bucket_provider_type" {
@@ -93,11 +93,11 @@ variable "db_restore_enabled" {
 variable "db_backup_config" {
   type = map(string)
   default = {
-    bucket_uri           = ""
+    bucket_uri = ""
     # s3_bucket_region     = ""
     cron_for_full_backup = ""
     mysql_database_name  = ""
-    # port                 = "" 
+    # port                 = ""
   }
   description = "configuration options for MySQL database backups. It includes properties such as the S3 bucket URI, the S3 bucket region, and the cron expression for full backups."
 }
@@ -105,8 +105,8 @@ variable "db_backup_config" {
 variable "db_restore_config" {
   type = any
   default = {
-    bucket_uri       = ""
-    file_name        = ""
+    bucket_uri = ""
+    file_name  = ""
     # s3_bucket_region = ""
   }
   description = "Configuration options for restoring dump to the MySQL database."

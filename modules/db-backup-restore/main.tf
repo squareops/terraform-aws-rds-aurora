@@ -58,7 +58,3 @@ resource "helm_release" "db_restore" {
     })
   ]
 }
-
-
-
-
