@@ -12,7 +12,7 @@ locals {
   environment        = "prod"
   db_engine_version  = "15.7" # 5.7"
   db_instance_class  = "db.r5.large"
-  cluster_name       = "non-prod-07-feb"
+  cluster_name       = ""
   create_namespace   = false
   namespace          = "mydb"
   master_password    = "Amanrajj12" # Leave this field empty to have a password automatically generated.
