@@ -15,7 +15,7 @@ locals {
   cluster_name       = ""
   create_namespace   = false
   namespace          = "mydb"
-  master_password    = "Amanrajj12" # Leave this field empty to have a password automatically generated.
+  master_password    = "" # Leave this field empty to have a password automatically generated.
   additional_aws_tags = {
     Owner      = "Organization_Name"
     Expires    = "Never"
