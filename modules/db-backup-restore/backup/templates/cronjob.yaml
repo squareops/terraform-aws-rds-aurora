@@ -1,0 +1,36 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: backup-job
+spec:
+  schedule: {{ .Values.backup.cron_for_full_backup |  quote }}
+  concurrencyPolicy: Forbid
+  suspend: false
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          affinity: {{ .Values.affinity | toYaml | nindent 10 }}
+          restartPolicy: OnFailure
+          imagePullSecrets:
+          - name: regcred
+          serviceAccountName: sa-db-backup
+          containers:
+          - name: backup-database
+            image: {{ if eq .Values.backup.engine "aurora-mysql" }}squareops01/rds-mysql-backup:v1{{ else }}squareops01/rds-postgresql-backup:v2{{ end }}
+            imagePullPolicy: Always
+            env:
+            - name: {{if eq .Values.backup.engine "aurora-mysql"}}MYSQL_HOST{{ else }}DB_HOST{{ end }}
+              value: {{ .Values.backup.database_endpoint }}
+            - name: {{if eq .Values.backup.engine "aurora-mysql"}}DATABASE{{ else }}DB_NAME{{ end }}
+              value: {{ .Values.backup.database_name }}
+            - name: {{if eq .Values.backup.engine "aurora-mysql"}}MYSQL_USER{{ else }}DB_USER{{ end }}
+              value: {{ .Values.backup.database_user }}
+            - name: {{if eq .Values.backup.engine "aurora-mysql"}}MYSQL_PASSWORD{{ else }}DB_PASSWORD{{ end }}
+              value: {{ .Values.backup.database_password }}
+            - name: {{if eq .Values.backup.engine "aurora-mysql"}}MYSQL_BUCKET_URI{{ else }}S3_BUCKET{{ end }}
+              value: {{ .Values.backup.bucket_uri }}
+            resources: {{ .Values.backupjob.resources | toYaml | nindent 12 }}

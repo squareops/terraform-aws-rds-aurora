@@ -18,7 +18,7 @@ output "secondary_rds_cluster_reader_endpoint" {
   value       = var.global_cluster_enable ? module.aurora_secondary[0].cluster_reader_endpoint : null
 }
 
-output "rds_cluster_database_name"{
+output "rds_cluster_database_name" {
   description = "Name for an automatically created database on cluster creation"
   value       = module.aurora.cluster_database_name
 }

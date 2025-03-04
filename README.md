@@ -94,6 +94,7 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 |------|--------|---------|
 | <a name="module_aurora"></a> [aurora](#module\_aurora) | terraform-aws-modules/rds-aurora/aws | 8.3.0 |
 | <a name="module_aurora_secondary"></a> [aurora\_secondary](#module\_aurora\_secondary) | terraform-aws-modules/rds-aurora/aws | 8.3.0 |
+| <a name="module_backup_restore"></a> [backup\_restore](#module\_backup\_restore) | ./modules/db-backup-restore | n/a |
 
 ## Resources
 
@@ -125,10 +126,17 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 | <a name="input_autoscaling_scale_out_cooldown"></a> [autoscaling\_scale\_out\_cooldown](#input\_autoscaling\_scale\_out\_cooldown) | Cooldown in seconds before allowing further scaling operations after a scale out | `number` | `300` | no |
 | <a name="input_autoscaling_target_connections"></a> [autoscaling\_target\_connections](#input\_autoscaling\_target\_connections) | No of connections on which aurora has to scale if predefined\_metric\_type is RDSReaderAverageDatabaseConnections | `number` | `50` | no |
 | <a name="input_backup_retention_period"></a> [backup\_retention\_period](#input\_backup\_retention\_period) | The number of days to retain backups for | `number` | `null` | no |
+| <a name="input_bucket_provider_type"></a> [bucket\_provider\_type](#input\_bucket\_provider\_type) | Choose what type of provider you want (s3, gcs) | `string` | `"s3"` | no |
+| <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Specifies the name of the EKS cluster to deploy the MySQL application on. | `string` | `""` | no |
 | <a name="input_create_monitoring_role"></a> [create\_monitoring\_role](#input\_create\_monitoring\_role) | Set it to true to create IAM role for Enhanced monitoring. | `bool` | `false` | no |
+| <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | Specify whether or not to create the namespace if it does not already exist. Set it to true to create the namespace. | `string` | `false` | no |
 | <a name="input_create_random_password"></a> [create\_random\_password](#input\_create\_random\_password) | Whether to create a random password for the primary database cluster | `bool` | `true` | no |
 | <a name="input_create_security_group"></a> [create\_security\_group](#input\_create\_security\_group) | Whether to create a security group or not | `bool` | `true` | no |
 | <a name="input_database_name"></a> [database\_name](#input\_database\_name) | The name for an automatically created database on cluster creation | `string` | `""` | no |
+| <a name="input_db_backup_config"></a> [db\_backup\_config](#input\_db\_backup\_config) | configuration options for MySQL database backups. It includes properties such as the S3 bucket URI, the S3 bucket region, and the cron expression for full backups. | `map(string)` | <pre>{<br/>  "bucket_uri": "",<br/>  "cron_for_full_backup": "",<br/>  "mysql_database_name": ""<br/>}</pre> | no |
+| <a name="input_db_backup_enabled"></a> [db\_backup\_enabled](#input\_db\_backup\_enabled) | Specifies whether to enable backups for MySQL database. | `bool` | `false` | no |
+| <a name="input_db_restore_config"></a> [db\_restore\_config](#input\_db\_restore\_config) | Configuration options for restoring dump to the MySQL database. | `any` | <pre>{<br/>  "bucket_uri": "",<br/>  "file_name": ""<br/>}</pre> | no |
+| <a name="input_db_restore_enabled"></a> [db\_restore\_enabled](#input\_db\_restore\_enabled) | Specifies whether to enable restoring dump to the MySQL database. | `bool` | `false` | no |
 | <a name="input_deletion_protection"></a> [deletion\_protection](#input\_deletion\_protection) | Whether accidental deletion protection is enabled | `bool` | `true` | no |
 | <a name="input_enable_egress"></a> [enable\_egress](#input\_enable\_egress) | Set it true if allow outbound traffic in rds security group | `bool` | `true` | no |
 | <a name="input_enable_http_endpoint"></a> [enable\_http\_endpoint](#input\_enable\_http\_endpoint) | Whether or not to enable the Data API for a serverless Aurora database engine | `bool` | `false` | no |
@@ -148,8 +156,11 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 | <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | The ARN for the KMS encryption key. If creating an encrypted replica, set this to the destination KMS ARN.  If storage\_encrypted is set to true and kms\_key\_id is not specified the default KMS key created in your account will be used | `string` | `null` | no |
 | <a name="input_long_query_time"></a> [long\_query\_time](#input\_long\_query\_time) | To prevent fast-running queries from being logged in the slow query log, specify a value for the shortest query runtime to be logged, in seconds | `number` | `10` | no |
 | <a name="input_manage_master_user_password"></a> [manage\_master\_user\_password](#input\_manage\_master\_user\_password) | Set to true to allow RDS to manage the master user password in Secrets Manager. Cannot be set if `master_password` is provided | `bool` | `false` | no |
+| <a name="input_master_password"></a> [master\_password](#input\_master\_password) | The password for the primary cluster | `string` | `null` | no |
 | <a name="input_master_username"></a> [master\_username](#input\_master\_username) | The username for the primary cluster | `string` | `"root"` | no |
 | <a name="input_monitoring_interval"></a> [monitoring\_interval](#input\_monitoring\_interval) | The interval, in seconds, between points when Enhanced Monitoring metrics are collected for instances. Set to 0 to disble. Default is 0 | `number` | `0` | no |
+| <a name="input_name"></a> [name](#input\_name) | The name of the RDS instance | `string` | `""` | no |
+| <a name="input_namespace"></a> [namespace](#input\_namespace) | Name of the Kubernetes namespace where the MYSQL deployment will be deployed. | `string` | `"db"` | no |
 | <a name="input_performance_insights_enabled"></a> [performance\_insights\_enabled](#input\_performance\_insights\_enabled) | Specifies whether Performance Insights is enabled or not | `bool` | `null` | no |
 | <a name="input_performance_insights_kms_key_id"></a> [performance\_insights\_kms\_key\_id](#input\_performance\_insights\_kms\_key\_id) | ARN of KMS key to encrypt performance insights data. | `string` | `null` | no |
 | <a name="input_performance_insights_retention_period"></a> [performance\_insights\_retention\_period](#input\_performance\_insights\_retention\_period) | Retention period for performance insights data, Either 7 (7 days) or 731 (2 years). | `number` | `null` | no |
@@ -182,6 +193,7 @@ Security scanning is graciously provided by Prowler. Proowler is the leading ful
 
 | Name | Description |
 |------|-------------|
+| <a name="output_rds_cluster_database_name"></a> [rds\_cluster\_database\_name](#output\_rds\_cluster\_database\_name) | Name for an automatically created database on cluster creation |
 | <a name="output_rds_cluster_endpoint"></a> [rds\_cluster\_endpoint](#output\_rds\_cluster\_endpoint) | The endpoint URL of the Aurora cluster |
 | <a name="output_rds_cluster_master_password"></a> [rds\_cluster\_master\_password](#output\_rds\_cluster\_master\_password) | The master password for the Aurora cluster |
 | <a name="output_rds_cluster_master_username"></a> [rds\_cluster\_master\_username](#output\_rds\_cluster\_master\_username) | The master username for the Aurora cluster |

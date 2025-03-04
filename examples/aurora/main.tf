@@ -4,22 +4,25 @@ locals {
   external_id        = "" # Define your external ID here
   assume_role_config = length(local.role_arn) > 0 ? { role_arn = local.role_arn } : null
   name               = "skaf"
-  region             = "us-east-2"
-  port               = 5432                  #/3306
-  family             = "aurora-postgresql15" #/aurora-mysql5.7"
-  engine             = "aurora-postgresql"   #/aurora-mysql"
+  region             = "us-east-1"
+  port               = 5432                  # 3306 for MySQL
+  family             = "aurora-postgresql15" # aurora-mysql5.7"
+  engine             = "aurora-postgresql"   # aurora-mysql"
   vpc_cidr           = "10.0.0.0/16"
-  environment        = "production"
-  db_engine_version  = "15.2" #/5.7"
+  environment        = "prod"
+  db_engine_version  = "15.7" # 5.7"
   db_instance_class  = "db.r5.large"
-  master_password   = ""  # Leave this field empty to have a password automatically generated.
+  cluster_name       = ""
+  create_namespace   = false
+  namespace          = "mydb"
+  master_password    = "" # Leave this field empty to have a password automatically generated.
   additional_aws_tags = {
     Owner      = "Organization_Name"
     Expires    = "Never"
     Department = "Engineering"
   }
-  current_identity        = data.aws_caller_identity.current.arn
-  allowed_cidr_blocks     = ["10.10.0.0/16"]
+  current_identity    = data.aws_caller_identity.current.arn
+  allowed_cidr_blocks = ["10.0.0.0/16"]
 }
 
 data "aws_caller_identity" "current" {}
@@ -86,7 +89,9 @@ module "vpc" {
 
 module "aurora" {
   source                           = "squareops/rds-aurora/aws"
-  version                          = "2.2.1"
+  version                          = "3.0.0"
+  name                             = local.name
+  region                           = local.region
   role_arn                         = local.role_arn
   external_id                      = local.external_id
   environment                      = local.environment
@@ -123,4 +128,20 @@ module "aurora" {
   autoscaling_scale_in_cooldown    = 60
   autoscaling_scale_out_cooldown   = 30
   allowed_cidr_blocks              = local.allowed_cidr_blocks
+  #########
+  cluster_name         = local.cluster_name # cluster name where your backup or restore job will run.
+  namespace            = local.namespace
+  create_namespace     = local.create_namespace
+  bucket_provider_type = "s3"
+  db_backup_enabled    = false
+  db_backup_config = {
+    mysql_database_name  = "atmosly_db4"                    # Specify the database name or Leave empty if you wish to backup all databases
+    cron_for_full_backup = "*/2 * * * *"                    # set cronjob for backup
+    bucket_uri           = "s3://my-backup-dumps-databases" # S3 bucket URI (without a trailing slash /)
+  }
+  db_restore_enabled = false
+  db_restore_config = {
+    bucket_uri = "s3://my-backup-dumps-databases" # S3 bucket URI (without a trailing slash /) containing the backup dump file.
+    file_name  = "atmosly_db1.sql"                # Give .sql or .zip file for restore
+  }
 }
