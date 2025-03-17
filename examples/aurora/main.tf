@@ -4,7 +4,7 @@ locals {
   external_id        = "" # Define your external ID here
   assume_role_config = length(local.role_arn) > 0 ? { role_arn = local.role_arn } : null
   name               = "skaf"
-  region             = "us-east-1"
+  region             = "us-east-2"
   port               = 5432                  # 3306 for MySQL
   family             = "aurora-postgresql15" # aurora-mysql5.7"
   engine             = "aurora-postgresql"   # aurora-mysql"
