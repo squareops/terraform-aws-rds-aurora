@@ -63,7 +63,7 @@ module "aurora" {
   # security_groups = var.allowed_security_groups
   security_group_rules = {
     ingress_postgresql = {
-      description = "Allow inbound PostgreSQL traffic from trusted CIDR blocks"
+      description = "Allow inbound traffic from trusted CIDR blocks"
       type        = "ingress"
       from_port   = var.port
       to_port     = var.port
