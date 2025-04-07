@@ -83,43 +83,43 @@ module "aurora" {
   master_password = var.master_password != "" ? var.master_password : (length(random_password.master) > 0 ? random_password.master[0].result : null)
 
 
-  deletion_protection         = var.deletion_protection
-  allow_major_version_upgrade = var.allow_major_version_upgrade
-  skip_final_snapshot         = var.skip_final_snapshot
-  # final_snapshot_identifier_prefix   = var.final_snapshot_identifier_prefix
-  snapshot_identifier                = var.snapshot_identifier
-  backup_retention_period            = var.backup_retention_period
-  preferred_maintenance_window       = var.preferred_maintenance_window
-  preferred_backup_window            = var.preferred_backup_window
-  apply_immediately                  = var.apply_immediately
-  db_parameter_group_name            = aws_db_parameter_group.rds_parameter_group.id
-  db_cluster_parameter_group_name    = aws_rds_cluster_parameter_group.rds_cluster_parameter_group.id
-  serverlessv2_scaling_configuration = var.serverlessv2_scaling_configuration
-  autoscaling_enabled                = var.autoscaling_enabled
-  autoscaling_max_capacity           = var.autoscaling_max
-  autoscaling_min_capacity           = var.autoscaling_min
-  autoscaling_target_cpu             = var.autoscaling_cpu
-  autoscaling_target_connections     = var.autoscaling_target_connections
-  autoscaling_scale_in_cooldown      = var.autoscaling_scale_in_cooldown
-  autoscaling_scale_out_cooldown     = var.autoscaling_scale_out_cooldown
-  predefined_metric_type             = var.predefined_metric_type
+    deletion_protection         = var.deletion_protection
+    allow_major_version_upgrade = var.allow_major_version_upgrade
+    skip_final_snapshot         = var.skip_final_snapshot
+    # final_snapshot_identifier_prefix   = var.final_snapshot_identifier_prefix
+    snapshot_identifier                = var.snapshot_identifier
+    backup_retention_period            = var.backup_retention_period
+    preferred_maintenance_window       = var.preferred_maintenance_window
+    preferred_backup_window            = var.preferred_backup_window
+    apply_immediately                  = var.apply_immediately
+    db_parameter_group_name            = aws_db_parameter_group.rds_parameter_group.id
+    db_cluster_parameter_group_name    = aws_rds_cluster_parameter_group.rds_cluster_parameter_group.id
+    serverlessv2_scaling_configuration = var.serverlessv2_scaling_configuration
+    autoscaling_enabled                = var.autoscaling_enabled
+    autoscaling_max_capacity           = var.autoscaling_max
+    autoscaling_min_capacity           = var.autoscaling_min
+    autoscaling_target_cpu             = var.autoscaling_cpu
+    autoscaling_target_connections     = var.autoscaling_target_connections
+    autoscaling_scale_in_cooldown      = var.autoscaling_scale_in_cooldown
+    autoscaling_scale_out_cooldown     = var.autoscaling_scale_out_cooldown
+    predefined_metric_type             = var.predefined_metric_type
 
-  performance_insights_enabled          = var.performance_insights_enabled
-  performance_insights_kms_key_id       = var.performance_insights_kms_key_id
-  performance_insights_retention_period = var.performance_insights_retention_period
-  iam_database_authentication_enabled   = var.iam_database_authentication_enabled
+    performance_insights_enabled          = var.performance_insights_enabled
+    performance_insights_kms_key_id       = var.performance_insights_kms_key_id
+    performance_insights_retention_period = var.performance_insights_retention_period
+    iam_database_authentication_enabled   = var.iam_database_authentication_enabled
 
-  create_monitoring_role          = var.create_monitoring_role
-  iam_role_name                   = format("%s-%s-%s", var.environment, var.rds_instance_name, "monitoring-role")
-  monitoring_interval             = var.monitoring_interval
-  security_group_description      = var.security_group_description
-  enabled_cloudwatch_logs_exports = var.engine_mode == "provisioned" ? (var.engine == "aurora-mysql" ? ["audit", "error", "general", "slowquery"] : ["postgresql"]) : null
-  tags = merge(
-    { "Name" = format("%s-%s", var.environment, var.rds_instance_name) },
-    local.tags,
-  )
+    create_monitoring_role          = var.create_monitoring_role
+    iam_role_name                   = format("%s-%s-%s", var.environment, var.rds_instance_name, "monitoring-role")
+    monitoring_interval             = var.monitoring_interval
+    security_group_description      = var.security_group_description
+    enabled_cloudwatch_logs_exports = var.engine_mode == "provisioned" ? (var.engine == "aurora-mysql" ? ["audit", "error", "general", "slowquery"] : ["postgresql"]) : null
+    tags = merge(
+      { "Name" = format("%s-%s", var.environment, var.rds_instance_name) },
+      local.tags,
+    )
+  }
 }
-
 resource "aws_db_parameter_group" "rds_parameter_group" {
   name        = format("%s-%s-parameter-group", var.environment, var.rds_instance_name)
   family      = var.family
