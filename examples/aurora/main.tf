@@ -4,7 +4,7 @@ locals {
   external_id        = "" # Define your external ID here
   assume_role_config = length(local.role_arn) > 0 ? { role_arn = local.role_arn } : null
   name               = "skaf"
-  region             = "us-east-1"
+  region             = "us-east-2"
   port               = 5432                  # 3306 for MySQL
   family             = "aurora-postgresql15" # aurora-mysql5.7"
   engine             = "aurora-postgresql"   # aurora-mysql"
@@ -76,7 +76,7 @@ module "vpc" {
   name                    = local.name
   vpc_cidr                = local.vpc_cidr
   environment             = local.environment
-  availability_zones      = ["us-east-1a", "us-east-1b"]
+  availability_zones      = ["us-east-2a", "us-east-2b"]
   public_subnet_enabled   = true
   auto_assign_public_ip   = true
   intra_subnet_enabled    = false
