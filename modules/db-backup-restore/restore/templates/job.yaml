@@ -9,7 +9,7 @@ spec:
       serviceAccountName: sa-db-restore
       containers:
         - name: restore-job
-          image: {{ if eq .Values.restore.engine "aurora-mysql" }}squareops01/rds-mysql-restore:v1{{ else }}squareops01/rds-postgresql-restore:v2{{ end }}
+          image: {{ if eq .Values.restore.engine "aurora-mysql" }}squareops01/rds-mysql-restore:v2{{ else }}squareops01/rds-postgresql-restore:v2{{ end }}
           imagePullPolicy: Always
           env:
             - name: {{if eq .Values.restore.engine "aurora-mysql"}}MYSQL_HOST{{ else }}DB_HOST{{ end }}
