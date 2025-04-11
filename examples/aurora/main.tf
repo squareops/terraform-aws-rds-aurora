@@ -4,7 +4,7 @@ locals {
   external_id        = "" # Define your external ID here
   assume_role_config = length(local.role_arn) > 0 ? { role_arn = local.role_arn } : null
   name               = "skaf"
-  region             = "us-east-1"
+  region             = "us-east-2"
   port               = 5432                  # 3306 for MySQL
   family             = "aurora-postgresql15" # aurora-mysql5.7"
   engine             = "aurora-postgresql"   # aurora-mysql"
@@ -89,7 +89,7 @@ module "vpc" {
 
 module "aurora" {
   source                           = "squareops/rds-aurora/aws"
-  version                          = "3.0.0"
+  version                          = "3.0.1"
   name                             = local.name
   region                           = local.region
   role_arn                         = local.role_arn
@@ -129,13 +129,12 @@ module "aurora" {
   autoscaling_scale_out_cooldown   = 30
   allowed_cidr_blocks              = local.allowed_cidr_blocks
   #########
-  cluster_name         = local.cluster_name # cluster name where your backup or restore job will run.
-  namespace            = local.namespace
-  create_namespace     = local.create_namespace
-  bucket_provider_type = "s3"
-  db_backup_enabled    = false
+  cluster_name      = local.cluster_name # cluster name where your backup or restore job will run.
+  namespace         = local.namespace
+  create_namespace  = local.create_namespace
+  db_backup_enabled = false
   db_backup_config = {
-    mysql_database_name  = "atmosly_db4"                    # Specify the database name or Leave empty if you wish to backup all databases
+    mysql_database_name  = ""                               # Specify the database name or Leave empty if you wish to backup all databases
     cron_for_full_backup = "*/2 * * * *"                    # set cronjob for backup
     bucket_uri           = "s3://my-backup-dumps-databases" # S3 bucket URI (without a trailing slash /)
   }

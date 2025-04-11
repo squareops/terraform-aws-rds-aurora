@@ -16,7 +16,7 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_aurora"></a> [aurora](#module\_aurora) | squareops/rds-aurora/aws | 2.2.1 |
+| <a name="module_aurora"></a> [aurora](#module\_aurora) | squareops/rds-aurora/aws | 3.0.1 |
 | <a name="module_kms"></a> [kms](#module\_kms) | terraform-aws-modules/kms/aws | n/a |
 | <a name="module_vpc"></a> [vpc](#module\_vpc) | squareops/vpc/aws | n/a |
 

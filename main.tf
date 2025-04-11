@@ -36,7 +36,7 @@ module "aurora" {
   source  = "terraform-aws-modules/rds-aurora/aws"
   version = "8.3.0"
   name    = format("%s-%s", var.environment, var.rds_instance_name)
-  # region                 = var.region
+
   engine                 = var.engine
   engine_mode            = var.engine_mode
   engine_version         = var.engine_mode == "serverless" ? null : var.engine_version
@@ -62,21 +62,22 @@ module "aurora" {
   # cidr_blocks     = var.allowed_cidr_blocks
   # security_groups = var.allowed_security_groups
   security_group_rules = {
-  ingress_postgresql = {
-    description = "Allow inbound traffic from trusted CIDR blocks"
-    type        = "ingress" 
-    from_port   = var.port
-    to_port     = var.port
-    protocol    = "tcp"
-    cidr_blocks = var.allowed_cidr_blocks
-  }
-  egress_allow_all = {
-    description = "Allow all outbound traffic"
-    type        = "egress"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    ingress_postgresql = {
+      description = "Allow inbound traffic from trusted CIDR blocks"
+      type        = "ingress"
+      from_port   = var.port
+      to_port     = var.port
+      protocol    = "tcp"
+      cidr_blocks = var.allowed_cidr_blocks
+    }
+    egress_allow_all = {
+      description = "Allow all outbound traffic"
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
   subnets         = var.subnets
   master_password = var.master_password != "" ? var.master_password : (length(random_password.master) > 0 ? random_password.master[0].result : null)
@@ -195,10 +196,10 @@ resource "aws_rds_global_cluster" "this" {
 }
 
 module "aurora_secondary" {
-  source  = "terraform-aws-modules/rds-aurora/aws"
-  count   = var.global_cluster_enable ? 1 : 0
-  version = "8.3.0"
-  # providers = { aws = aws.secondary }
+  source    = "terraform-aws-modules/rds-aurora/aws"
+  count     = var.global_cluster_enable ? 1 : 0
+  version   = "8.3.0"
+  providers = { aws = aws.secondary }
 
   is_primary_cluster = false
 
@@ -238,7 +239,6 @@ module "aurora_secondary" {
     local.tags,
   )
 }
-
 
 module "backup_restore" {
   depends_on           = [module.aurora]
