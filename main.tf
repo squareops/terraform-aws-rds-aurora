@@ -1,4 +1,3 @@
-
 locals {
   tags = {
     Automation  = "true"
